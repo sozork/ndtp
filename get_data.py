@@ -2,7 +2,6 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 import mysql.connector
-import json
 
 
 dates_dict = {
@@ -87,5 +86,6 @@ def get_data_google(cursor):
 # );'''
 # cursor.execute(query)
 get_data_google(cursor)
+get_data_yandex(cursor)
 connection.commit()
 connection.close()
