@@ -2,7 +2,7 @@ name: run get_data.py
 
 on:
   schedule:
-    - cron: '0 20 * * *' # At 00:00 on Monday
+    - cron: '0 19 * * *' # At 00:00 on Monday
   workflow_dispatch:
   
 jobs:
