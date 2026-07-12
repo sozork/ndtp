@@ -74,7 +74,7 @@ def get_data_google(cursor):
         rain = day['daytimeForecast']['precipitation']['probability']['percent'] >= consider_rain_percent
         humidity = day['daytimeForecast']['relativeHumidity']
         avg_temp = round((day['maxTemperature']['degrees']+day['minTemperature']['degrees'])/2, 2)
-        cursor.execute("INSERT INTO yandex VALUES(%s, %s, %s, %s, %s)", [now, date, rain, avg_temp, humidity])
+        cursor.execute("INSERT INTO google VALUES(%s, %s, %s, %s, %s)", [now, date, rain, avg_temp, humidity])
 
 # get_data_yandex(cursor)
 # query = '''CREATE TABLE google (
