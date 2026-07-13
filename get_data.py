@@ -1,7 +1,7 @@
 import datetime
+import sqlite3
 import requests
 from bs4 import BeautifulSoup
-import mysql.connector
 
 
 dates_dict = {
@@ -10,13 +10,7 @@ dates_dict = {
     'сентября': '09', 'октября': '10', 'ноября': '11', 'декабря': '12'
 }
 
-connection = mysql.connector.connect(
-    host="sql7.freesqldatabase.com",
-    database="sql7832649",
-    user="sql7832649",
-    password="cAqcPmBN2g",
-    port="3306"
-)
+connection = sqlite3.connect('data.db')
 cursor = connection.cursor()
 
 # cursor.execute("CREATE TABLE yandex (curent_date DATE, date DATE, rain BOOL, temperature REAL, humidity REAL)")
@@ -51,10 +45,10 @@ def get_data_yandex(cursor):
             if 'дожд' in i.text:
                 israin = True
                 break
-        cursor.execute("INSERT INTO yandex VALUES(%s, %s, %s, %s, %s)", [now, date, israin, avg_temp, avg_humidity])
+        cursor.execute("INSERT INTO yandex VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), israin, avg_temp, avg_humidity])
 
 def get_data_google(cursor):
-    consider_rain_percent = 1
+    consider_rain_percent = 20
     url = "https://weather.googleapis.com/v1/forecast/days:lookup?"
     params = {
         "location.latitude": 53.90056,
@@ -74,9 +68,8 @@ def get_data_google(cursor):
         rain = day['daytimeForecast']['precipitation']['probability']['percent'] >= consider_rain_percent
         humidity = day['daytimeForecast']['relativeHumidity']
         avg_temp = round((day['maxTemperature']['degrees']+day['minTemperature']['degrees'])/2, 2)
-        cursor.execute("INSERT INTO yandex VALUES(%s, %s, %s, %s, %s)", [now, date, rain, avg_temp, humidity])
+        cursor.execute("INSERT INTO google VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), rain, avg_temp, humidity])
 
-# get_data_yandex(cursor)
 # query = '''CREATE TABLE google (
 #     `current_date` DATE,
 #     `date` DATE,
