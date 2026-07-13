@@ -15,6 +15,7 @@ cursor = connection.cursor()
 
 # cursor.execute("CREATE TABLE yandex (curent_date DATE, date DATE, rain BOOL, temperature REAL, humidity REAL)")
 now = datetime.date.today()
+yesterday = now - datetime.timedelta(days=1)
 def get_data_yandex(cursor):
     link = 'https://yandex.by/pogoda/ru/minsk/details/today?lat=53.902735&lon=27.555691'
     source = requests.get(link).text
@@ -51,8 +52,8 @@ def get_data_google(cursor):
     consider_rain_percent = 20
     url = "https://weather.googleapis.com/v1/forecast/days:lookup?"
     params = {
-        "location.latitude": 53.90056,
-        "location.longitude": 27.55861,
+        "location.latitude": 53.9,
+        "location.longitude": 27.57,
         "key": 'AIzaSyDOTTYUc3ssVWoIEl_1q4HTuEPnSZIFBE4',
         "days": 10,
         "pageSize": 10
@@ -70,15 +71,38 @@ def get_data_google(cursor):
         avg_temp = round((day['maxTemperature']['degrees']+day['minTemperature']['degrees'])/2, 2)
         cursor.execute("INSERT INTO google VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), rain, avg_temp, humidity])
 
-# query = '''CREATE TABLE google (
-#     `current_date` DATE,
+def get_data_openmeteo(cursor):
+    considerd_rain_min = 0.01
+    url = "https://archive-api.open-meteo.com/v1/archive"
+    params = {
+        "latitude": 53.9,
+        "longitude": 27.57,
+        "start_date": now.isoformat(),
+        "end_date": now.isoformat(),
+        "daily": ["weather_code", "temperature_2m_mean", "rain_sum", "relative_humidity_2m_mean"],
+        "timezone": "Europe/Moscow"
+    }
+    
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    
+    data = response.json()['daily']
+    date = data['time'][0]
+    avg_temp = data['temperature_2m_mean'][0]
+    rain = data['rain_sum'][0]>considerd_rain_min
+    humidity = data['relative_humidity_2m_mean'][0]
+    cursor.execute("INSERT INTO openmeteo VALUES(?, ?, ?, ?)", [date, rain, avg_temp, humidity])
+
+# query = '''CREATE TABLE openmeteo (
 #     `date` DATE,
 #     rain BOOL,
 #     temperature REAL,
 #     humidity REAL
 # );'''
 # cursor.execute(query)
+
 get_data_google(cursor)
 get_data_yandex(cursor)
+get_data_openmeteo(cursor)
 connection.commit()
 connection.close()
