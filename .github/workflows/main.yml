@@ -4,7 +4,10 @@ on:
   schedule:
     - cron: '0 19 * * *' # At 00:00 on Monday
   workflow_dispatch:
-  
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
