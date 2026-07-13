@@ -34,3 +34,11 @@ jobs:
         env:
           SOME_SECRET: ${{ secrets.SOME_SECRET }}
         run: python get_data.py
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          # Only commit if changes exist to avoid workflow failures
+          git diff-index --quiet HEAD || git commit -m "Automated file update from GitHub Actions"
+          git push
