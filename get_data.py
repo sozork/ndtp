@@ -49,7 +49,7 @@ def get_data_yandex(cursor):
         cursor.execute("INSERT INTO yandex VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), israin, avg_temp, avg_humidity])
 
 def get_data_google(cursor):
-    consider_rain_percent = 20
+    consider_rain_quant = 0.01
     url = "https://weather.googleapis.com/v1/forecast/days:lookup?"
     params = {
         "location.latitude": 53.9,
@@ -66,9 +66,20 @@ def get_data_google(cursor):
     for day in days:
         date = day['displayDate']
         date = datetime.date(date['year'], date['month'], date['day'])
-        rain = day['daytimeForecast']['precipitation']['probability']['percent'] >= consider_rain_percent
-        humidity = day['daytimeForecast']['relativeHumidity']
+
+        time = 'daytimeForecast'
+        precipitation_daytime = day[time]['precipitation']
+        rain_daytime = precipitation_daytime['qpf']['quantity'] - precipitation_daytime['snowQpf']['quantity'] >= consider_rain_quant
+        humidity_daytime = day[time]['relativeHumidity']
+    
+        time = 'nighttimeForecast'
+        precipitation_nighttime = day[time]['precipitation']
+        rain_nighttime = precipitation_nighttime['qpf']['quantity'] - precipitation_nighttime['snowQpf']['quantity'] >= consider_rain_quant
+        humidity_nighttimetime = day[time]['relativeHumidity']
+
         avg_temp = round((day['maxTemperature']['degrees']+day['minTemperature']['degrees'])/2, 2)
+        rain = rain_daytime or rain_nighttime
+        humidity = round((humidity_daytime+humidity_nighttimetime)/2, 2)
         cursor.execute("INSERT INTO google VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), rain, avg_temp, humidity])
 
 def get_data_openmeteo(cursor):
