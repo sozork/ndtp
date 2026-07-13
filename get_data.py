@@ -77,8 +77,8 @@ def get_data_openmeteo(cursor):
     params = {
         "latitude": 53.9,
         "longitude": 27.57,
-        "start_date": now.isoformat(),
-        "end_date": now.isoformat(),
+        "start_date": yesterday.isoformat(),
+        "end_date": yesterday.isoformat(),
         "daily": ["weather_code", "temperature_2m_mean", "rain_sum", "relative_humidity_2m_mean"],
         "timezone": "Europe/Moscow"
     }
@@ -93,7 +93,8 @@ def get_data_openmeteo(cursor):
     humidity = data['relative_humidity_2m_mean'][0]
     cursor.execute("INSERT INTO openmeteo VALUES(?, ?, ?, ?)", [date, rain, avg_temp, humidity])
 
-# query = '''CREATE TABLE openmeteo (
+# query = '''CREATE TABLE google (
+#     `current_date` DATE,
 #     `date` DATE,
 #     rain BOOL,
 #     temperature REAL,
