@@ -1,0 +1,65 @@
+body{
+    background-color: rgb(22, 22, 37);
+}
+.main_caption {
+    margin-left: 50px;
+    text-align: left;
+    font-family: "Roboto", sans-serif;
+    color:rgb(218, 218, 218)
+}
+.main_description{
+    margin-left: 50px;
+    text-align: left;
+    font-family: "Roboto", sans-serif;
+    color:rgb(218, 218, 218)
+}
+.yandex_link{
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+.change_page_btn{
+    margin-left: 50px;
+    margin-right: -40px;
+    padding: 0.3%;
+
+    border-style: solid;
+    border-radius: 10%;
+    border-color: rgb(147, 147, 229);;
+    border-width: 2px;
+    
+    font-family: "Roboto", sans-serif;
+    color: rgb(147, 147, 229);
+    text-decoration: none;
+}
+.top_line{
+    margin-top: 20px;
+}
+.base_div{
+    background-color: rgb(47, 47, 68);;
+    width: 500px;
+    height: 600px;
+    display: inline-block;
+
+    border-style: solid;
+    border-radius: 4%;
+    border-color: rgb(147, 147, 229);;
+    border-width: 4px;
+}
+select{
+    display: inline-block;
+}
+.h3_inline{
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    color: aliceblue;
+    font-family: "Roboto", sans-serif;
+    text-decoration: none;
+}
+.yandex_accuracy_day_canvs{
+    margin-left: 10px;
+    width: 480px;
+    height: 480px;
+    background-color: rgb(99, 99, 148);
+    display: block;
+}

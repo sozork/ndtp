@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Weather data</title>
+    <link rel="stylesheet" href="css/main_styles.css">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.js"></script>
+    <script>
+        window.addEventListener('load', async () => {
+        // initSqlJs is now guaranteed to exist
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
+            });
+            const response = await fetch('../data.db');
+            const db_data = await response.arrayBuffer();
+            const uint8Array = new Uint8Array(db_data);
+            const db = new SQL.Database(uint8Array);
+            const results = db.exec("SELECT COUNT(*) FROM yandex");
+            console.log(results);
+        });
+    </script>
+    <h1 class="main_caption">Статистика точности яндекс погоды</h1>
+    <h3 class="main_description">Данные взяты с <a target="_blank" class = "yandex_link" href="https://yandex.by/pogoda/ru/minsk/details">yandex.by/pogoda/ru/minsk/details</a></h3>
+    <a class="change_page_btn" href="index.html">Стартовая страница</a>
+    <a class="change_page_btn" href="google.html">Статистика гугл</a>
+    <hr class="top_line">
+    <div class="base_div">
+        <h3 class="h3_inline">Точность погоды за</h3>
+        <select>
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3>
+        <canvas class="yandex_accuracy_day_canvs">
+
+        </canvas>
+    </div>
+</body>
+
+</html>
