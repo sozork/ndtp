@@ -4,32 +4,19 @@
 
 <head>
     <title>Weather data</title>
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.js"></script>
     <link rel="stylesheet" href="css/main_styles.css">
 </head>
+
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.js"></script>
-    <script>
-        window.addEventListener('load', async () => {
-        // initSqlJs is now guaranteed to exist
-            const SQL = await initSqlJs({
-                locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
-            });
-            const response = await fetch('../data.db');
-            const db_data = await response.arrayBuffer();
-            const uint8Array = new Uint8Array(db_data);
-            const db = new SQL.Database(uint8Array);
-            const results = db.exec("SELECT COUNT(*) FROM yandex");
-            console.log(results);
-        });
-    </script>
     <h1 class="main_caption">Статистика точности яндекс погоды</h1>
     <h3 class="main_description">Данные взяты с <a target="_blank" class = "yandex_link" href="https://yandex.by/pogoda/ru/minsk/details">yandex.by/pogoda/ru/minsk/details</a></h3>
     <a class="change_page_btn" href="index.html">Стартовая страница</a>
     <a class="change_page_btn" href="google.html">Статистика гугл</a>
     <hr class="top_line">
-    <div class="base_div">
-        <h3 class="h3_inline">Точность погоды за</h3>
-        <select>
+    <div class="base_div" id = "yandex_accuracy_day_div">
+        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <select id = "yandex_accuracy_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
             <option value=3>3</option>
@@ -42,10 +29,125 @@
             <option value=10>10</option>
         </select>
         <h3 class="h3_inline">дней.</h3>
-        <canvas class="yandex_accuracy_day_canvs">
-
-        </canvas>
+        
+        <canvas id = "yandex_accuracy_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
     </div>
 </body>
 
+<script> 
+    function drawGrid(canvas, ctx, gridsize, color, width) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+
+        for (let x = 0; x <= canvas.width; x += gridsize) {
+            ctx.moveTo(x + 0.5, 0);
+            ctx.lineTo(x + 0.5, canvas.height);
+        }
+
+        for (let y = 0; y <= canvas.height; y += gridsize) {
+            ctx.moveTo(0, y + 0.5);
+            ctx.lineTo(canvas.width, y + 0.5);
+        }
+
+        ctx.stroke();
+    }
+    class Rectangle {
+        constructor(x, y, width, height, color, percentage) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.percentage = percentage;
+        }
+        draw(ctx) {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+        isMouseIn(x, y) {
+            return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        }
+        onHoverDraw(ctx, x, y){
+            if (this.isMouseIn(x, y)){
+                ctx.font = "30px 'Roboto', sans-serif";
+                ctx.fillStyle = "aliceblue";
+                ctx.fillText(this.percentage*100+'%', x, y);
+            }
+        }
+    };
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0'); 
+    const formatted_today = `${yyyy}-${mm}-${dd}`
+
+    window.addEventListener('load', async () => {
+        const SQL = await initSqlJs({
+            locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
+        });
+        const response = await fetch('../data.db');
+        const db_data = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(db_data);
+        const db = new SQL.Database(uint8Array);
+
+        function display_yandex_accuracy_day(){
+            rectangles = [];
+            deletion_elements = document.querySelectorAll('#yandex_accuracy_day_date_text');
+            for (let i = 0; i < deletion_elements.length; i++){
+                deletion_elements[i].remove();  
+            };
+            const selector_accuracy_day = document.getElementById("yandex_accuracy_day_select");
+            const canvas = document.getElementById("yandex_accuracy_day_canvas");
+            const ctx = canvas.getContext("2d");
+            const pixel_ratio = window.devicePixelRatio || 1;
+
+            canvas.width = canvas.clientWidth * pixel_ratio;
+            canvas.height = canvas.clientHeight * pixel_ratio;
+            var container = document.getElementById("yandex_accuracy_day_div");
+
+            var results = null;
+            var results = db.exec('SELECT * FROM yandex WHERE JULIANDAY("date")-JULIANDAY("current_date") == :days AND JULIANDAY(:today)-JULIANDAY("date") <= 10', {":days":selector_accuracy_day.value-1, ":today":formatted_today});
+            results = results[0].values;
+
+            for(let i = 0; i < results.length; i++)
+            {
+                result = results[i]
+                var datetext = document.createElement("h3");
+                datetext.textContent = result[1];
+                datetext.id = 'yandex_accuracy_day_date_text';
+                datetext.className = "yandex_accuracy_day_date_text";
+                datetext.style.marginright = 10 + canvas.width/results.length + "px";
+                container.appendChild(datetext);
+                
+                var preicted_temp = result[3];
+                var actual_temp = db.exec('SELECT temperature FROM openmeteo WHERE "date" = :date', {":date":result[1]})
+                if (actual_temp.length > 0)
+                {
+                    actual_temp = actual_temp[0].values[0][0];
+                    var percentage = ((preicted_temp-actual_temp)/preicted_temp).toFixed(2);
+                    rectangles.push(new Rectangle(canvas.width/results.length*i+10, 10+canvas.height-canvas.height*percentage, canvas.width/results.length-20, canvas.height*percentage, "rgb(147, 177, 239)", percentage));
+                }
+                
+            };
+            drawGrid(canvas, ctx, canvas.height/5, 'black', 3);
+            rectangles.forEach(rect => rect.draw(ctx));
+            
+            canvas.addEventListener('mousemove', (event) => {
+                x = event.offsetX;
+                y = event.offsetY;
+                ctx.reset();
+                drawGrid(canvas, ctx, canvas.height/5, 'black', 3);
+                rectangles.forEach(rect => rect.draw(ctx));
+                rectangles.forEach(rect => rect.onHoverDraw(ctx, x, y));
+            });
+            
+
+        };
+
+        document.getElementById("yandex_accuracy_day_select").addEventListener('change', (display_yandex_accuracy_day));
+        display_yandex_accuracy_day();
+    });
+</script>
 </html>
