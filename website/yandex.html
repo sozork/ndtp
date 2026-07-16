@@ -110,7 +110,6 @@
             var results = null;
             var results = db.exec('SELECT * FROM yandex WHERE JULIANDAY("date")-JULIANDAY("current_date") == :days AND JULIANDAY(:today)-JULIANDAY("date") <= 10', {":days":selector_accuracy_day.value-1, ":today":formatted_today});
             results = results[0].values;
-
             for(let i = 0; i < results.length; i++)
             {
                 result = results[i]
@@ -119,15 +118,17 @@
                 datetext.id = 'yandex_accuracy_day_date_text';
                 datetext.className = "yandex_accuracy_day_date_text";
                 datetext.style.marginright = 10 + canvas.width/results.length + "px";
+                console.log(datetext.style.marginright);
                 container.appendChild(datetext);
                 
                 var preicted_temp = result[3];
                 var actual_temp = db.exec('SELECT temperature FROM openmeteo WHERE "date" = :date', {":date":result[1]})
+                console.log(actual_temp);
                 if (actual_temp.length > 0)
                 {
                     actual_temp = actual_temp[0].values[0][0];
                     var percentage = ((preicted_temp-actual_temp)/preicted_temp).toFixed(2);
-                    rectangles.push(new Rectangle(canvas.width/results.length*i+10, 10+canvas.height-canvas.height*percentage, canvas.width/results.length-20, canvas.height*percentage, "rgb(147, 177, 239)", percentage));
+                    rectangles.push(new Rectangle(canvas.width/results.length*i+10, canvas.height-canvas.height*percentage, canvas.width/results.length-20, canvas.height*percentage, "rgb(147, 177, 239)", percentage));
                 }
                 
             };
