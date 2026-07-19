@@ -201,8 +201,9 @@
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
                     datetext.style.left = this.canvas.width/list.length*i+10 + "px";
-                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage, this.canvas.width/list.length-20,
-                    this.canvas.height*percentage, "rgb(147, 177, 239)", percentage));
+
+                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
+                    this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
                     var x = event.offsetX;
