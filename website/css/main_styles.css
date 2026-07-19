@@ -39,8 +39,8 @@ body{
     width: 500px;
     height: 640px;
     display: inline-block;
-
-    position: relative;
+    
+    overflow: hidden;
     border-style: solid;
     border-radius: 4%;
     border-color: rgb(147, 147, 229);
@@ -76,7 +76,6 @@ select{
     margin-top: 30px;
     display: inline-block;
     margin-left: 10px;
-    text-align: left;
     font-family: "Roboto", sans-serif;
     color:rgb(218, 218, 218);
     rotate: 45deg
