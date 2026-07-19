@@ -193,14 +193,14 @@
                 for (let i = 0; i < list.length; i++)
                 {
                     var datetext = document.createElement("h3");
-                    datetext.textContent = list[i][0];
+                    datetext.textContent = list[i][0].substring(5);
                     datetext.id = date_line_id;
                     datetext.className = "yandex_accuracy_day_date_text";
-                    datetext.style.marginRight = 10 + this.canvas.width/(list.length*2) + "px";
                     this.bottomlines.push(datetext);
                     var preicted = list[i][1];
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
+                    datetext.style.left = this.canvas.width/list.length*i+10 + "px";
                     this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage, this.canvas.width/list.length-20,
                     this.canvas.height*percentage, "rgb(147, 177, 239)", percentage));
                 }
@@ -296,7 +296,7 @@
             if (correct > 0)
                 list = [[total/correct, 'green'], [total-total/correct, 'red']];
             else
-            
+
                 list = [[0, 'green'], [total-0, 'red']];
             rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list);
             rain_graph.draw_pie();
