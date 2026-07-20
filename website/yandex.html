@@ -9,6 +9,7 @@
 </head>
 
 <body>
+    <canvas id="bg_canvas"></canvas>
     <h1 class="main_caption">Статистика точности яндекс погоды</h1>
     <h3 class="main_description">Данные взяты с <a target="_blank" class = "yandex_link" href="https://yandex.by/pogoda/ru/minsk/details">yandex.by/pogoda/ru/minsk/details</a></h3>
     <a class="change_page_btn" href="index.html">Стартовая страница</a>
@@ -29,7 +30,7 @@
             <option value=9>9</option>
             <option value=10>10</option>
         </select>
-        <h3 class="h3_inline">дней.</h3>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры">
         <canvas id = "yandex_accuracy_temp_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
     </div>
     <!-- влажности -->
@@ -47,7 +48,7 @@
             <option value=9>9</option>
             <option value=10>10</option>
         </select>
-        <h3 class="h3_inline">дней.</h3>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности">
         <canvas id = "yandex_accuracy_hum_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
     </div>
     <!-- пайчарт дождя -->
@@ -65,8 +66,14 @@
             <option value=9>9</option>
             <option value=10>10</option>
         </select>
-        <h3 class="h3_inline">дней.</h3>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
         <canvas id = "yandex_pie_accuracy_rain_canvas" class="yandex_accuracy_day_canvas" style="width: 530px;"></canvas>
+        <h3 class = "pie_legend_text">
+            <span style="display: inline-block; width: 12px; height: 12px; background-color: green; margin-right: 5px;"></span>
+        Предсказано правильно</h3>
+        <h3 class = "pie_legend_text">
+            <span style="display: inline-block; width: 12px; height: 12px; background-color: red; margin-right: 5px;"></span>
+        Предсказано не правильно</h3>
     </div>
 </body>
 
@@ -153,6 +160,11 @@
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0'); 
     const formatted_today = `${yyyy}-${mm}-${dd}`
+    var bg_canvas = document.getElementById("bg_canvas");
+    const pixel_ratio = window.devicePixelRatio || 1;   
+    bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
+    bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
+    var bg_ctx = bg_canvas.getContext("2d");
 
     window.addEventListener('load', async () => {
         const SQL = await initSqlJs({
@@ -240,7 +252,32 @@
                 this.arcs.forEach(arc => arc.draw(this.ctx));
             }
         };
-         
+        //  отрисовываем весь текст, который должен выводиться при наводки на значки вопроса
+        let elements = document.querySelectorAll(`[id="question"]`);
+        for (let i = 0; i < elements.length; i++){
+            let element = elements[i];
+            let text = element.dataset.text;
+            element.addEventListener('mousemove', (event) => {
+                bg_ctx.reset();
+                let x = event.x;
+                let y = event.y;
+                bg_ctx.fillStyle = 'rgb(89, 99, 168)';
+                bg_ctx.font = "17px 'Roboto', sans-serif";
+                let metrics = bg_ctx.measureText(text);
+                // let height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                bg_ctx.fillRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.lineWidth = 5;                 
+                bg_ctx.strokeStyle = 'rgb(89, 149, 198)';    
+                bg_ctx.strokeRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.fillStyle = "aliceblue";
+                bg_ctx.fillText(text, x, y);
+                
+            });
+            element.addEventListener('mouseleave', (event) => {
+                bg_ctx.reset();
+            });
+        };
         // граф температуры
         temp_graph = new Graph(document.getElementById('yandex_accuracy_temp_day_canvas'), document.getElementById('yandex_accuracy_temp_day_div'));
         selector = document.getElementById('yandex_accuracy_temp_day_select');

@@ -57,6 +57,7 @@ select{
     color: aliceblue;
     font-family: "Roboto", sans-serif;
     text-decoration: none;
+    font-size: medium;
 }
 .percentage_values{
     margin-left: 10px;
@@ -81,4 +82,21 @@ select{
     color:rgb(218, 218, 218);
     position: absolute;
     bottom: 40px;
+}
+.pie_legend_text{
+    margin-top: 30px;
+    display: inline-block;
+    margin-left: 10px;
+    font-size: medium;
+    font-family: "Roboto", sans-serif;
+    color:rgb(218, 218, 218);
+}
+#bg_canvas {
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    position: fixed;
+    z-index: 1;
 }
