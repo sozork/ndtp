@@ -41,5 +41,5 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
           # Only commit if changes exist to avoid workflow failures
-          git diff-index --quiet HEAD || git commit -m "Automated file update from GitHub Actions"
+          git diff-index --quiet HEAD || git commit -m "Получение новой информации о погоде сегодня черезGitHub Actions"
           git push
