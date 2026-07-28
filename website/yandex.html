@@ -286,7 +286,7 @@
             openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
             for (let i = 0; i < openmet[0].values.length; i++)
             {
-                var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
                 if (yandex_temp.length > 0)
                     yandex_list.push([openmet[0].values[i][0], yandex_temp[0].values[0][0], openmet[0].values[i][1]]);
             }
@@ -305,7 +305,7 @@
             openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
             for (let i = 0; i < openmet[0].values.length; i++)
             {
-                var yandex_hum = db.exec('SELECT humidity FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                var yandex_hum = db.exec('SELECT humidity FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
                 if (yandex_hum.length > 0)
                     yandex_list.push([openmet[0].values[i][0], yandex_hum[0].values[0][0], openmet[0].values[i][1]]);
             }
@@ -325,7 +325,7 @@
             let correct = 0;
             for (let i = 0; i < openmet[0].values.length; i++){
                 wasrain = openmet[0].values[i][1];
-                yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
                 if (yandex_prediction.length > 0){
                     total += 1;
                     if (wasrain == yandex_prediction[0].values[0][0]) correct += 1;
