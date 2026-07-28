@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Weather data</title>
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.js"></script>
+    <link rel="stylesheet" href="css/main_styles.css">
+</head>
+
+<body>
+    <canvas id="bg_canvas"></canvas>
+    <h1 class="main_caption">Статистика точности гугл погоды</h1>
+    <h3 class="main_description">Данные взяты с api гугла</h3>
+    <a class="change_page_btn" href="index.html">Стартовая страница</a>
+    <a class="change_page_btn" href="yandex.html">Статистика yandex</a>
+    <hr class="top_line">
+    <!-- температуры -->
+    <div class="base_div" id = "google_accuracy_temp_day_div">
+        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <select id = "google_accuracy_temp_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры">
+        <canvas id = "google_accuracy_temp_day_canvas" class="google_accuracy_day_canvas"></canvas>
+    </div>
+    <!-- влажности -->
+    <div class="base_div" id = "google_accuracy_hum_day_div">
+        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <select id = "google_accuracy_hum_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности">
+        <canvas id = "google_accuracy_hum_day_canvas" class="google_accuracy_day_canvas"></canvas>
+    </div>
+    <!-- пайчарт дождя -->
+    <div class="base_div" id = "google_pie_accuracy_rain_div" style="width: 550px;">
+        <h3 class="h3_inline">Точность предсказаний дождя предикт на</h3>
+        <select id = "google_pie_accuracy_rain_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
+        <canvas id = "google_pie_accuracy_rain_canvas" class="google_accuracy_day_canvas" style="width: 530px;"></canvas>
+        <h3 class = "pie_legend_text">
+            <span style="display: inline-block; width: 12px; height: 12px; background-color: green; margin-right: 5px;"></span>
+        Предсказано правильно</h3>
+        <h3 class = "pie_legend_text">
+            <span style="display: inline-block; width: 12px; height: 12px; background-color: red; margin-right: 5px;"></span>
+        Предсказано не правильно</h3>
+    </div>
+</body>
+
+<script> 
+    function drawGrid(canvas, ctx, gridsize, color, width) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+
+        for (let x = 0; x <= canvas.width; x += gridsize) {
+            ctx.moveTo(x + 0.5, 0);
+            ctx.lineTo(x + 0.5, canvas.height);
+        }
+
+        for (let y = 0; y <= canvas.height; y += gridsize) {
+            ctx.moveTo(0, y + 0.5);
+            ctx.lineTo(canvas.width, y + 0.5);
+        }
+
+        ctx.stroke();
+    }
+    class Rectangle {
+        constructor(x, y, width, height, color, percentage) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.percentage = percentage;
+        }
+        draw(ctx) {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+        isMouseIn(x, y) {
+            return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        }
+        onHoverDraw(ctx, x, y){
+            if (this.isMouseIn(x, y)){
+                ctx.font = "30px 'Roboto', sans-serif";
+                ctx.fillStyle = "aliceblue";
+                ctx.fillText((this.percentage*100).toFixed(2)+'%', x, y);
+            }
+        }
+    };
+    class Arc{
+        constructor(x, y, r, startangle, angle, color, percentage) {
+            this.x = x;
+            this.y = y;
+            this.radius = r;
+            this.color = color;
+            this.startangle = startangle
+            this.angle = angle
+            this.percentage = percentage
+        }
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.arc(this.x, this.y, this.radius, this.startangle, this.startangle + this.angle);
+            ctx.closePath();
+
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        isMouseIn(x, y) {
+            if ((x-this.x) ** 2 + (y-this.y) ** 2 > this.radius ** 2)
+                return false;
+            let pointangle = Math.atan2(y-this.y, x - this.x);
+            if (pointangle < 0) 
+                pointangle += 2 * Math.PI;
+
+            return pointangle>this.startangle && pointangle < this.startangle+this.angle;
+        }
+        onHoverDraw(ctx, x, y){
+            if (this.isMouseIn(x, y)){
+                ctx.font = "30px 'Roboto', sans-serif";
+                ctx.fillStyle = "aliceblue";
+                ctx.fillText((this.percentage*100).toFixed(2)+'%', x, y);
+            }
+        }
+    };
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0'); 
+    const formatted_today = `${yyyy}-${mm}-${dd}`
+    var bg_canvas = document.getElementById("bg_canvas");
+    const pixel_ratio = window.devicePixelRatio || 1;   
+    bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
+    bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
+    var bg_ctx = bg_canvas.getContext("2d");
+
+    window.addEventListener('load', async () => {
+        const SQL = await initSqlJs({
+            locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
+        });
+        const response = await fetch('../data.db');
+        const db_data = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(db_data);
+        const db = new SQL.Database(uint8Array);
+
+        class Graph {
+            constructor(canvas, bottomlines_container) {
+                this.canvas = canvas;
+                const pixel_ratio = window.devicePixelRatio || 1;
+                this.canvas.width = this.canvas.clientWidth * pixel_ratio;
+                this.canvas.height = this.canvas.clientHeight * pixel_ratio;
+                this.ctx = canvas.getContext("2d");
+                this.bottomlines_container = bottomlines_container;
+                this.rectangles = [];
+                this.bottomlines = [];
+                this.arcs = [];
+            }
+
+            draw(date_line_id) {
+                var deletion_elements = document.querySelectorAll(`[id="${date_line_id}"]`);
+                for (let i = 0; i < deletion_elements.length; i++){
+                    deletion_elements[i].remove();  
+                };
+                this.ctx.reset();
+                drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
+                this.rectangles.forEach(rect => rect.draw(this.ctx));
+                this.bottomlines.forEach(line => this.bottomlines_container.appendChild(line));
+            }
+
+            get_horizontal_lines_graph(date_line_id, list) {
+                this.rectangles = [];
+                this.bottomlines = [];  
+                for (let i = 0; i < list.length; i++)
+                {
+                    var datetext = document.createElement("h3");
+                    datetext.textContent = list[i][0].substring(5);
+                    datetext.id = date_line_id;
+                    datetext.className = "google_accuracy_day_date_text";
+                    this.bottomlines.push(datetext);
+                    var preicted = list[i][1];
+                    var actual = list[i][2];
+                    var percentage = Math.abs((preicted-actual)/preicted);
+                    datetext.style.left = this.canvas.width/list.length*i+10 + "px";
+
+                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
+                    this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
+                }
+                this.canvas.addEventListener('mousemove', (event) => {
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
+                    this.ctx.reset();
+                    drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
+                    this.rectangles.forEach(rect => rect.draw(this.ctx));
+                    this.rectangles.forEach(rect => rect.onHoverDraw(this.ctx, x, y));
+                });
+            }
+            get_pie_graph(x, y, radius, list){
+                this.arcs = [];
+                var sum = 0;
+                for (let i=0; i<list.length; i++){
+                    sum += list[i][0];
+                };
+                var startangle = 0;
+                for (let i=0; i<list.length; i++){
+                    var sliceangle = (list[i][0] / sum) * 2 * Math.PI;
+                    var percentage = list[i][0]/sum;
+                    this.arcs.push(new Arc(x, y, radius, startangle, sliceangle, list[i][1], percentage))
+                    startangle += sliceangle;
+                };
+                this.canvas.addEventListener('mousemove', (event) => {
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
+                    this.ctx.reset();
+                    this.arcs.forEach(arc => arc.draw(this.ctx));
+                    this.arcs.forEach(arc => arc.onHoverDraw(this.ctx, x, y));
+                });
+            }
+            draw_pie() {
+                this.ctx.reset();
+                this.arcs.forEach(arc => arc.draw(this.ctx));
+            }
+        };
+        //  отрисовываем весь текст, который должен выводиться при наводки на значки вопроса
+        let elements = document.querySelectorAll(`[id="question"]`);
+        for (let i = 0; i < elements.length; i++){
+            let element = elements[i];
+            let text = element.dataset.text;
+            element.addEventListener('mousemove', (event) => {
+                bg_ctx.reset();
+                let x = event.x*pixel_ratio;
+                let y = event.y*pixel_ratio;
+                bg_ctx.fillStyle = 'rgb(89, 99, 168)';
+                bg_ctx.font = "17px 'Roboto', sans-serif";
+                let metrics = bg_ctx.measureText(text);
+                // let height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                bg_ctx.fillRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.lineWidth = 5;                 
+                bg_ctx.strokeStyle = 'rgb(89, 149, 198)';    
+                bg_ctx.strokeRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.fillStyle = "aliceblue";
+                bg_ctx.fillText(text, x, y);
+                
+            });
+            element.addEventListener('mouseleave', (event) => {
+                bg_ctx.reset();
+            });
+        };
+        // граф температуры
+        temp_graph = new Graph(document.getElementById('google_accuracy_temp_day_canvas'), document.getElementById('google_accuracy_temp_day_div'));
+        selector = document.getElementById('google_accuracy_temp_day_select');
+        function update_temp_Graph(selector) {
+            var google_list = [];
+            openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+            for (let i = 0; i < openmet[0].values.length; i++)
+            {
+                var google_temp = db.exec('SELECT temperature FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                if (google_temp.length > 0)
+                    google_list.push([openmet[0].values[i][0], google_temp[0].values[0][0], openmet[0].values[i][1]]);
+            }
+            temp_graph.get_horizontal_lines_graph('date_temp_text', google_list);
+            temp_graph.draw('date_temp_text');
+        };
+        update_temp_Graph(selector)
+        selector.addEventListener('change', (e) => {
+            update_temp_Graph(e.target);
+        });
+        //  граф влажности
+        hum_graph = new Graph(document.getElementById('google_accuracy_hum_day_canvas'), document.getElementById('google_accuracy_hum_day_div'));
+        selector = document.getElementById('google_accuracy_hum_day_select');
+        function update_hum_Graph(selector) {
+            var google_list = [];
+            openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+            for (let i = 0; i < openmet[0].values.length; i++)
+            {
+                var google_hum = db.exec('SELECT humidity FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                if (google_hum.length > 0)
+                    google_list.push([openmet[0].values[i][0], google_hum[0].values[0][0], openmet[0].values[i][1]]);
+            }
+            hum_graph.get_horizontal_lines_graph('date_hum_text', google_list);
+            hum_graph.draw('date_hum_text');
+        };
+        update_hum_Graph(selector)
+        selector.addEventListener('change', (e) => {
+            update_hum_Graph(e.target);
+        });
+        // грав дождя
+        rain_graph = new Graph(document.getElementById('google_pie_accuracy_rain_canvas'), document.getElementById('google_pie_accuracy_rain_div'));
+        selector = document.getElementById('google_pie_accuracy_rain_select');
+        function update_rain_Graph(selector) {
+            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+            let total = 0;
+            let correct = 0;
+            for (let i = 0; i < openmet[0].values.length; i++){
+                wasrain = openmet[0].values[i][1];
+                google_prediction = db.exec('SELECT rain FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                if (google_prediction.length > 0){
+                    total += 1;
+                    if (wasrain == google_prediction[0].values[0][0]) correct += 1;
+                }
+            }
+            if (correct > 0)
+                list = [[total/correct, 'green'], [total-total/correct, 'red']];
+            else
+
+                list = [[0, 'green'], [total-0, 'red']];
+            rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list);
+            rain_graph.draw_pie();
+        };
+        update_rain_Graph(selector);
+        selector.addEventListener('change', (e) => {
+            update_rain_Graph(e.target);
+        });
+    })
+</script>
+</html>

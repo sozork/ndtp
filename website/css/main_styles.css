@@ -17,6 +17,10 @@ body{
     color: rgb(255, 255, 255);
     text-decoration: none;
 }
+.google_link{
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
 .change_page_btn{
     margin-left: 50px;
     margin-right: -40px;
@@ -74,7 +78,23 @@ select{
     background-color: rgb(99, 99, 148);
     display: inline-block;
 }
+.google_accuracy_day_canvas{
+    margin-left: 10px;
+    width: 480px;
+    height: 480px;
+    background-color: rgb(99, 99, 148);
+    display: inline-block;
+}
 .yandex_accuracy_day_date_text{
+    margin-top: 30px;
+    display: inline-block;
+    margin-left: 10px;
+    font-family: "Roboto", sans-serif;
+    color:rgb(218, 218, 218);
+    position: absolute;
+    bottom: 40px;
+}
+.google_accuracy_day_date_text{
     margin-top: 30px;
     display: inline-block;
     margin-left: 10px;
