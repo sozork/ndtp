@@ -218,8 +218,8 @@
                     this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
-                    var x = event.offsetX;
-                    var y = event.offsetY;
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
                     this.ctx.reset();
                     drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
                     this.rectangles.forEach(rect => rect.draw(this.ctx));
@@ -240,8 +240,8 @@
                     startangle += sliceangle;
                 };
                 this.canvas.addEventListener('mousemove', (event) => {
-                    var x = event.offsetX;
-                    var y = event.offsetY;
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
                     this.ctx.reset();
                     this.arcs.forEach(arc => arc.draw(this.ctx));
                     this.arcs.forEach(arc => arc.onHoverDraw(this.ctx, x, y));
@@ -259,8 +259,8 @@
             let text = element.dataset.text;
             element.addEventListener('mousemove', (event) => {
                 bg_ctx.reset();
-                let x = event.x;
-                let y = event.y;
+                let x = event.x*pixel_ratio;
+                let y = event.y*pixel_ratio;
                 bg_ctx.fillStyle = 'rgb(89, 99, 168)';
                 bg_ctx.font = "17px 'Roboto', sans-serif";
                 let metrics = bg_ctx.measureText(text);
