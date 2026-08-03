@@ -29,9 +29,11 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
+            <option value=all>за все дни</option>
         </select>
         <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры">
         <canvas id = "yandex_accuracy_temp_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
     <!-- влажности -->
     <div class="base_div" id = "yandex_accuracy_hum_day_div">
@@ -47,12 +49,14 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
+            <option value=all>за все дни</option>
         </select>
         <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности">
         <canvas id = "yandex_accuracy_hum_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
     <!-- пайчарт дождя -->
-    <div class="base_div" id = "yandex_pie_accuracy_rain_div" style="width: 550px;">
+    <div class="base_div" id = "yandex_pie_accuracy_rain_div">
         <h3 class="h3_inline">Точность предсказаний дождя предикт на</h3>
         <select id = "yandex_pie_accuracy_rain_select" style="text-align: center;">
             <option value=1>1</option>
@@ -68,13 +72,9 @@
             <option value=all>за все дни</option>
         </select>
         <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
-        <canvas id = "yandex_pie_accuracy_rain_canvas" class="yandex_accuracy_day_canvas" style="width: 530px;"></canvas>
-        <h3 class = "pie_legend_text">
-            <span style="display: inline-block; width: 12px; height: 12px; background-color: green; margin-right: 5px;"></span>
-        Предсказано правильно</h3>
-        <h3 class = "pie_legend_text">
-            <span style="display: inline-block; width: 12px; height: 12px; background-color: red; margin-right: 5px;"></span>
-        Предсказано не правильно</h3>
+        <canvas id = "yandex_pie_accuracy_rain_canvas" class="yandex_accuracy_day_canvas"></canvas>
+        <div class="bottom_container">
+        </div>
     </div>
 </body>
 
@@ -177,37 +177,33 @@
         const db = new SQL.Database(uint8Array);
 
         class Graph {
-            constructor(canvas, bottomlines_container) {
+            constructor(canvas, bottom_container) {
                 this.canvas = canvas;
                 const pixel_ratio = window.devicePixelRatio || 1;
                 this.canvas.width = this.canvas.clientWidth * pixel_ratio;
                 this.canvas.height = this.canvas.clientHeight * pixel_ratio;
                 this.ctx = canvas.getContext("2d");
-                this.bottomlines_container = bottomlines_container;
+                this.bottom_container = bottom_container;
                 this.rectangles = [];
                 this.bottomlines = [];
                 this.arcs = [];
             }
 
-            draw(date_line_id) {
-                var deletion_elements = document.querySelectorAll(`[id="${date_line_id}"]`);
-                for (let i = 0; i < deletion_elements.length; i++){
-                    deletion_elements[i].remove();  
-                };
+            draw() {
+                this.bottom_container.innerHTML = "";
                 this.ctx.reset();
                 drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
                 this.rectangles.forEach(rect => rect.draw(this.ctx));
-                this.bottomlines.forEach(line => this.bottomlines_container.appendChild(line));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
 
-            get_horizontal_lines_graph(date_line_id, list) {
+            get_horizontal_lines_graph(list) {
                 this.rectangles = [];
                 this.bottomlines = [];  
                 for (let i = 0; i < list.length; i++)
                 {
                     var datetext = document.createElement("h3");
                     datetext.textContent = list[i][0].substring(5);
-                    datetext.id = date_line_id;
                     datetext.className = "yandex_accuracy_day_date_text";
                     this.bottomlines.push(datetext);
                     var preicted = list[i][1];
@@ -227,7 +223,21 @@
                     this.rectangles.forEach(rect => rect.onHoverDraw(this.ctx, x, y));
                 });
             }
-            get_pie_graph(x, y, radius, list){
+            get_pie_graph(x, y, radius, list, legends_list){
+                this.bottomlines = [];
+                for (let i = 0; i<legends_list.length; i++){
+                    var square = document.createElement("span");
+                    square.style.display = "inline-block";
+                    square.style.width = '12px';
+                    square.style.height = '12px';
+                    square.style.marginRight = '5px';
+                    square.style.backgroundColor = legends_list[i][1];
+                    var legend = document.createElement("h3");
+                    legend.className = 'pie_legend_text';
+                    legend.textContent = legends_list[i][0];
+                    legend.insertAdjacentHTML('afterbegin', square.outerHTML);
+                    this.bottomlines.push(legend);
+                }
                 this.arcs = [];
                 var sum = 0;
                 for (let i=0; i<list.length; i++){
@@ -249,8 +259,10 @@
                 });
             }
             draw_pie() {
+                this.bottom_container.innerHTML = "";
                 this.ctx.reset();
                 this.arcs.forEach(arc => arc.draw(this.ctx));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
         };
         //  отрисовываем весь текст, который должен выводиться при наводки на значки вопроса
@@ -280,26 +292,50 @@
             });
         };
         // граф температуры
-        temp_graph = new Graph(document.getElementById('yandex_accuracy_temp_day_canvas'), document.getElementById('yandex_accuracy_temp_day_div'));
+        temp_graph = new Graph(document.getElementById('yandex_accuracy_temp_day_canvas'), document.getElementById('yandex_accuracy_temp_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_accuracy_temp_day_select');
         function update_temp_Graph(selector) {
             var yandex_list = [];
-            openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
-            for (let i = 0; i < openmet[0].values.length; i++)
-            {
-                var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
-                if (yandex_temp.length > 0)
-                    yandex_list.push([openmet[0].values[i][0], yandex_temp[0].values[0][0], openmet[0].values[i][1]]);
+            if (selector.value != 'all'){
+                openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+                for (let i = 0; i < openmet[0].values.length; i++)
+                {
+                    var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                    if (yandex_temp.length > 0)
+                        yandex_list.push([openmet[0].values[i][0], yandex_temp[0].values[0][0], openmet[0].values[i][1]]);
+                };
+                temp_graph.get_horizontal_lines_graph(yandex_list);
+                temp_graph.draw();
             }
-            temp_graph.get_horizontal_lines_graph('date_temp_text', yandex_list);
-            temp_graph.draw('date_temp_text');
+            else{
+                openmet = db.exec('SELECT * FROM openmeteo');
+                let percentage_list = [];
+                for (let i = 0; i < openmet[0].values.length; i++){
+                    wastemp = openmet[0].values[i][2];
+                    yandex_prediction = db.exec('SELECT temperature FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+                    if (yandex_prediction.length > 0){
+                        for (let j=0; j<yandex_prediction[0].values.length; j++){
+                            percentage_list.push(Math.abs(wastemp-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
+                        };
+                    };
+                };
+                let avgpercentage = 0;
+                for (let i = 0; i < percentage_list.length; i++){
+                    avgpercentage += percentage_list[i];
+                };
+                avgpercentage /= percentage_list.length;
+                list = [[100-0, 'green'], [avgpercentage*100-0, 'red']];
+                let legends_list = [['погрешность', 'red']]
+                temp_graph.get_pie_graph(temp_graph.canvas.width/2-10, temp_graph.canvas.height/2-10, 200, list, legends_list);
+                temp_graph.draw_pie();
+            }
         };
         update_temp_Graph(selector)
         selector.addEventListener('change', (e) => {
             update_temp_Graph(e.target);
         });
         //  граф влажности
-        hum_graph = new Graph(document.getElementById('yandex_accuracy_hum_day_canvas'), document.getElementById('yandex_accuracy_hum_day_div'));
+        hum_graph = new Graph(document.getElementById('yandex_accuracy_hum_day_canvas'), document.getElementById('yandex_accuracy_hum_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_accuracy_hum_day_select');
         function update_hum_Graph(selector) {
             var yandex_list = [];
@@ -310,15 +346,15 @@
                 if (yandex_hum.length > 0)
                     yandex_list.push([openmet[0].values[i][0], yandex_hum[0].values[0][0], openmet[0].values[i][1]]);
             }
-            hum_graph.get_horizontal_lines_graph('date_hum_text', yandex_list);
-            hum_graph.draw('date_hum_text');
+            hum_graph.get_horizontal_lines_graph(yandex_list);
+            hum_graph.draw();
         };
         update_hum_Graph(selector)
         selector.addEventListener('change', (e) => {
             update_hum_Graph(e.target);
         });
         // грав дождя
-        rain_graph = new Graph(document.getElementById('yandex_pie_accuracy_rain_canvas'), document.getElementById('yandex_pie_accuracy_rain_div'));
+        rain_graph = new Graph(document.getElementById('yandex_pie_accuracy_rain_canvas'), document.getElementById('yandex_pie_accuracy_rain_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_pie_accuracy_rain_select');
         function update_rain_Graph(selector) {
             openmet = db.exec('SELECT * FROM openmeteo');
@@ -342,7 +378,8 @@
             else
 
                 list = [[0, 'green'], [total-0, 'red']];
-            rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list);
+            let legends_list = [['предсказанно правильно', 'green'], ['предсказанно не правильно', 'red']];
+            rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list, legends_list);
             rain_graph.draw_pie();
         };
         update_rain_Graph(selector);
