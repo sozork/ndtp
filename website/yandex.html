@@ -54,7 +54,7 @@
     <!-- пайчарт дождя -->
     <div class="base_div" id = "yandex_pie_accuracy_rain_div" style="width: 550px;">
         <h3 class="h3_inline">Точность предсказаний дождя предикт на</h3>
-        <select id = "yandex_pie_accuracy_rain_select">
+        <select id = "yandex_pie_accuracy_rain_select" style="text-align: center;">
             <option value=1>1</option>
             <option value=2>2</option>
             <option value=3>3</option>
@@ -65,6 +65,7 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
+            <option value=all>за все дни</option>
         </select>
         <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
         <canvas id = "yandex_pie_accuracy_rain_canvas" class="yandex_accuracy_day_canvas" style="width: 530px;"></canvas>
@@ -320,15 +321,20 @@
         rain_graph = new Graph(document.getElementById('yandex_pie_accuracy_rain_canvas'), document.getElementById('yandex_pie_accuracy_rain_div'));
         selector = document.getElementById('yandex_pie_accuracy_rain_select');
         function update_rain_Graph(selector) {
-            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+            openmet = db.exec('SELECT * FROM openmeteo');
             let total = 0;
             let correct = 0;
             for (let i = 0; i < openmet[0].values.length; i++){
                 wasrain = openmet[0].values[i][1];
-                yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                if (selector.value != 'all')
+                    yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                else
+                    yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
                 if (yandex_prediction.length > 0){
-                    total += 1;
-                    if (wasrain == yandex_prediction[0].values[0][0]) correct += 1;
+                    for (let j=0; j<yandex_prediction[0].values.length; j++){
+                        total += 1;
+                        if (wasrain == yandex_prediction[0].values[j][0]) correct += 1;
+                    }
                 }
             }
             if (correct > 0){
