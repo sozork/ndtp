@@ -5,9 +5,11 @@
 <head>
     <title>Weather data</title>
     <link rel="stylesheet" href="css/main_styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/sql-wasm-browser.js"></script>
 </head>
 
 <body>
+    <canvas id="bg_canvas"></canvas>
     <h1 class="main_caption">Статистика точнгости разных источников погоды</h1>
     <a class="change_page_btn" href="yandex.html">Статистика яндекс</a>
     <a class="change_page_btn" href="google.html">Статистика гугл</a>
@@ -15,3 +17,219 @@
     <div class="base_div"></div>
 </body>
 </html>
+<script> 
+    function drawGrid(canvas, ctx, gridsize, color, width) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.beginPath();
+
+        for (let x = 0; x <= canvas.width; x += gridsize) {
+            ctx.moveTo(x + 0.5, 0);
+            ctx.lineTo(x + 0.5, canvas.height);
+        }
+
+        for (let y = 0; y <= canvas.height; y += gridsize) {
+            ctx.moveTo(0, y + 0.5);
+            ctx.lineTo(canvas.width, y + 0.5);
+        }
+
+        ctx.stroke();
+    }
+    class Rectangle {
+        constructor(x, y, width, height, color, percentage) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.percentage = percentage;
+        }
+        draw(ctx) {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
+        isMouseIn(x, y) {
+            return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        }
+        onHoverDraw(ctx, x, y){
+            if (this.isMouseIn(x, y)){
+                ctx.font = "30px 'Roboto', sans-serif";
+                ctx.fillStyle = "aliceblue";
+                ctx.fillText((this.percentage*100).toFixed(2)+'%', x, y);
+            }
+        }
+    };
+    class Arc{
+        constructor(x, y, r, startangle, angle, color, percentage) {
+            this.x = x;
+            this.y = y;
+            this.radius = r;
+            this.color = color;
+            this.startangle = startangle
+            this.angle = angle
+            this.percentage = percentage
+        }
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.arc(this.x, this.y, this.radius, this.startangle, this.startangle + this.angle);
+            ctx.closePath();
+
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        isMouseIn(x, y) {
+            if ((x-this.x) ** 2 + (y-this.y) ** 2 > this.radius ** 2)
+                return false;
+            let pointangle = Math.atan2(y-this.y, x - this.x);
+            if (pointangle < 0) 
+                pointangle += 2 * Math.PI;
+
+            return pointangle>this.startangle && pointangle < this.startangle+this.angle;
+        }
+        onHoverDraw(ctx, x, y){
+            if (this.isMouseIn(x, y)){
+                ctx.font = "30px 'Roboto', sans-serif";
+                ctx.fillStyle = "aliceblue";
+                ctx.fillText((this.percentage*100).toFixed(2)+'%', x, y);
+            }
+        }
+    };
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0'); 
+    const formatted_today = `${yyyy}-${mm}-${dd}`
+    var bg_canvas = document.getElementById("bg_canvas");
+    const pixel_ratio = window.devicePixelRatio || 1;   
+    bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
+    bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
+    var bg_ctx = bg_canvas.getContext("2d");
+
+    window.addEventListener('load', async () => {
+        const SQL = await initSqlJs({
+            locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
+        });
+        const response = await fetch('../data.db');
+        const db_data = await response.arrayBuffer();
+        const uint8Array = new Uint8Array(db_data);
+        const db = new SQL.Database(uint8Array);
+
+        class Graph {
+            constructor(canvas, bottom_container) {
+                this.canvas = canvas;
+                const pixel_ratio = window.devicePixelRatio || 1;
+                this.canvas.width = this.canvas.clientWidth * pixel_ratio;
+                this.canvas.height = this.canvas.clientHeight * pixel_ratio;
+                this.ctx = canvas.getContext("2d");
+                this.bottom_container = bottom_container;
+                this.rectangles = [];
+                this.bottomlines = [];
+                this.arcs = [];
+            }
+
+            draw() {
+                this.bottom_container.innerHTML = "";
+                this.ctx.reset();
+                drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
+                this.rectangles.forEach(rect => rect.draw(this.ctx));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
+            }
+
+            get_horizontal_lines_graph(list) {
+                this.rectangles = [];
+                this.bottomlines = [];  
+                for (let i = 0; i < list.length; i++)
+                {
+                    var datetext = document.createElement("h3");
+                    datetext.textContent = list[i][0].substring(5);
+                    datetext.className = "yandex_accuracy_day_date_text";
+                    this.bottomlines.push(datetext);
+                    var preicted = list[i][1];
+                    var actual = list[i][2];
+                    var percentage = Math.abs((preicted-actual)/preicted);
+                    datetext.style.left = this.canvas.width/list.length*i+10 + "px";
+
+                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
+                    this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
+                }
+                this.canvas.addEventListener('mousemove', (event) => {
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
+                    this.ctx.reset();
+                    drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
+                    this.rectangles.forEach(rect => rect.draw(this.ctx));
+                    this.rectangles.forEach(rect => rect.onHoverDraw(this.ctx, x, y));
+                });
+            }
+            get_pie_graph(x, y, radius, list, legends_list){
+                this.bottomlines = [];
+                for (let i = 0; i<legends_list.length; i++){
+                    var square = document.createElement("span");
+                    square.style.display = "inline-block";
+                    square.style.width = '12px';
+                    square.style.height = '12px';
+                    square.style.marginRight = '5px';
+                    square.style.backgroundColor = legends_list[i][1];
+                    var legend = document.createElement("h3");
+                    legend.className = 'pie_legend_text';
+                    legend.textContent = legends_list[i][0];
+                    legend.insertAdjacentHTML('afterbegin', square.outerHTML);
+                    this.bottomlines.push(legend);
+                }
+                this.arcs = [];
+                var sum = 0;
+                for (let i=0; i<list.length; i++){
+                    sum += list[i][0];
+                };
+                var startangle = 0;
+                for (let i=0; i<list.length; i++){
+                    var sliceangle = (list[i][0] / sum) * 2 * Math.PI;
+                    var percentage = list[i][0]/sum;
+                    this.arcs.push(new Arc(x, y, radius, startangle, sliceangle, list[i][1], percentage))
+                    startangle += sliceangle;
+                };
+                this.canvas.addEventListener('mousemove', (event) => {
+                    var x = event.offsetX*pixel_ratio;
+                    var y = event.offsetY*pixel_ratio;
+                    this.ctx.reset();
+                    this.arcs.forEach(arc => arc.draw(this.ctx));
+                    this.arcs.forEach(arc => arc.onHoverDraw(this.ctx, x, y));
+                });
+            }
+            draw_pie() {
+                this.bottom_container.innerHTML = "";
+                this.ctx.reset();
+                this.arcs.forEach(arc => arc.draw(this.ctx));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
+            }
+        };
+        //  отрисовываем весь текст, который должен выводиться при наводки на значки вопроса
+        let elements = document.querySelectorAll(`[id="question"]`);
+        for (let i = 0; i < elements.length; i++){
+            let element = elements[i];
+            let text = element.dataset.text;
+            element.addEventListener('mousemove', (event) => {
+                bg_ctx.reset();
+                let x = event.x*pixel_ratio;
+                let y = event.y*pixel_ratio;
+                bg_ctx.fillStyle = 'rgb(89, 99, 168)';
+                bg_ctx.font = "17px 'Roboto', sans-serif";
+                let metrics = bg_ctx.measureText(text);
+                // let height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
+                let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                bg_ctx.fillRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.lineWidth = 5;                 
+                bg_ctx.strokeStyle = 'rgb(89, 149, 198)';    
+                bg_ctx.strokeRect(x-10, y-height-5, metrics.width+20, height+20);
+                bg_ctx.fillStyle = "aliceblue";
+                bg_ctx.fillText(text, x, y);
+                
+            });
+            element.addEventListener('mouseleave', (event) => {
+                bg_ctx.reset();
+            });
+        };
+    
+    })
+</script>
