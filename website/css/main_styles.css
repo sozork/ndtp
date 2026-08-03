@@ -40,7 +40,7 @@ body{
 }
 .base_div{
     background-color: rgb(47, 47, 68);
-    width: 500px;
+    width: 550px;
     height: 640px;
     display: inline-block;
     
@@ -73,26 +73,24 @@ select{
 }
 .yandex_accuracy_day_canvas{
     margin-left: 10px;
-    width: 480px;
-    height: 480px;
+    width: 96%;
+    aspect-ratio: 1 / 1;
     background-color: rgb(99, 99, 148);
     display: inline-block;
 }
 .google_accuracy_day_canvas{
     margin-left: 10px;
-    width: 480px;
-    height: 480px;
+    width: 96%;
+    aspect-ratio: 1 / 1;
     background-color: rgb(99, 99, 148);
     display: inline-block;
 }
 .yandex_accuracy_day_date_text{
-    margin-top: 30px;
     display: inline-block;
     margin-left: 10px;
     font-family: "Roboto", sans-serif;
     color:rgb(218, 218, 218);
     position: absolute;
-    bottom: 40px;
 }
 .google_accuracy_day_date_text{
     margin-top: 30px;
@@ -104,7 +102,6 @@ select{
     bottom: 40px;
 }
 .pie_legend_text{
-    margin-top: 30px;
     display: inline-block;
     margin-left: 10px;
     font-size: medium;
@@ -119,4 +116,12 @@ select{
     pointer-events: none;
     position: fixed;
     z-index: 1;
+}
+.bottom_container{
+    background-color: rgb(47, 47, 68);
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;   
 }
