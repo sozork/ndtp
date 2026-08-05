@@ -125,3 +125,15 @@ select{
     justify-content: center;
     align-items: center;   
 }
+#days_show {
+    width: 400px;
+    margin-top: 20px;
+    margin-left: 50px;
+}
+#days_show_text {
+    margin-left: 10px;
+    text-align: left;
+    font-family: "Roboto", sans-serif;
+    color:rgb(218, 218, 218);
+    display: inline-block;
+}

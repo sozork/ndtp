@@ -14,6 +14,8 @@
     <h3 class="main_description">Данные взяты с <a target="_blank" class = "yandex_link" href="https://yandex.by/pogoda/ru/minsk/details">yandex.by/pogoda/ru/minsk/details</a></h3>
     <a class="change_page_btn" href="index.html">Стартовая страница</a>
     <a class="change_page_btn" href="google.html">Статистика гугл</a>
+    <br>
+    <input type="range" id="days_show" min="1" max="60" value="10" step="1"> <h3 id="days_show_text">10</h3> <h3 class="main_description" style="display: inline-block; margin-left: 10px;">последних дней показывает</h3>
     <hr class="top_line">
     <!-- температуры -->
     <div class="base_div" id = "yandex_accuracy_temp_day_div">
@@ -166,7 +168,12 @@
     bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
     bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
     var bg_ctx = bg_canvas.getContext("2d");
-
+    // обновляем цифру слайдера
+    const slider = document.getElementById('days_show');
+    const slider_text = document.getElementById('days_show_text');
+    slider.addEventListener('input', (e) => {
+        slider_text.textContent = slider.value;
+    });
     window.addEventListener('load', async () => {
         const SQL = await initSqlJs({
             locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
@@ -294,21 +301,21 @@
         // граф температуры
         temp_graph = new Graph(document.getElementById('yandex_accuracy_temp_day_canvas'), document.getElementById('yandex_accuracy_temp_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_accuracy_temp_day_select');
-        function update_temp_Graph(selector) {
+        function update_temp_Graph(days_diff) {
             var yandex_list = [];
-            if (selector.value != 'all'){
-                openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+            if (days_diff != 'all'){
+                openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
                 for (let i = 0; i < openmet[0].values.length; i++)
                 {
-                    var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                    var yandex_temp = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-0});
                     if (yandex_temp.length > 0)
                         yandex_list.push([openmet[0].values[i][0], yandex_temp[0].values[0][0], openmet[0].values[i][1]]);
                 };
                 temp_graph.get_horizontal_lines_graph(yandex_list);
                 temp_graph.draw();
-            }
+            }   
             else{
-                openmet = db.exec('SELECT * FROM openmeteo');
+                openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
                 let percentage_list = [];
                 for (let i = 0; i < openmet[0].values.length; i++){
                     wastemp = openmet[0].values[i][2];
@@ -330,27 +337,27 @@
                 temp_graph.draw_pie();
             }
         };
-        update_temp_Graph(selector)
+        update_temp_Graph(selector.value)
         selector.addEventListener('change', (e) => {
-            update_temp_Graph(e.target);
+            update_temp_Graph(e.target.value);
         });
         //  граф влажности
         hum_graph = new Graph(document.getElementById('yandex_accuracy_hum_day_canvas'), document.getElementById('yandex_accuracy_hum_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_accuracy_hum_day_select');
-        function update_hum_Graph(selector) {
-            if (selector.value != 'all'){
+        function update_hum_Graph(days_diff) {
+            if (days_diff != 'all'){
                 var yandex_list = [];
-                openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+                openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :shown_days', {':today': formatted_today, ':shown_days':slider.value-0});
                 for (let i = 0; i < openmet[0].values.length; i++)
                 {
-                    var yandex_hum = db.exec('SELECT humidity FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                    var yandex_hum = db.exec('SELECT humidity FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-0});
                     if (yandex_hum.length > 0)
                         yandex_list.push([openmet[0].values[i][0], yandex_hum[0].values[0][0], openmet[0].values[i][1]]);
                 }
                 hum_graph.get_horizontal_lines_graph(yandex_list);
                 hum_graph.draw();}
             else{
-                openmet = db.exec('SELECT * FROM openmeteo');
+                openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
                 let percentage_list = [];
                 for (let i = 0; i < openmet[0].values.length; i++){
                     washum = openmet[0].values[i][2];
@@ -372,21 +379,21 @@
                 hum_graph.draw_pie();
             }
         };
-        update_hum_Graph(selector)
+        update_hum_Graph(selector.value)
         selector.addEventListener('change', (e) => {
-            update_hum_Graph(e.target);
+            update_hum_Graph(e.target.value);
         });
         // грав дождя
         rain_graph = new Graph(document.getElementById('yandex_pie_accuracy_rain_canvas'), document.getElementById('yandex_pie_accuracy_rain_div').querySelector('.bottom_container'));
         selector = document.getElementById('yandex_pie_accuracy_rain_select');
-        function update_rain_Graph(selector) {
-            openmet = db.exec('SELECT * FROM openmeteo');
+        function update_rain_Graph(days_diff) {
+            if (days_diff != 'all') openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :shown_days', {':today': formatted_today, ':shown_days':slider.value-0});
             let total = 0;
             let correct = 0;
             for (let i = 0; i < openmet[0].values.length; i++){
                 wasrain = openmet[0].values[i][1];
-                if (selector.value != 'all')
-                    yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-0});
+                if (days_diff != 'all')
+                    yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-0});
                 else
                     yandex_prediction = db.exec('SELECT rain FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
                 if (yandex_prediction.length > 0){
@@ -399,15 +406,19 @@
             if (correct > 0){
                 list = [[correct, 'green'], [total-correct, 'red']];}
             else
-
                 list = [[0, 'green'], [total-0, 'red']];
             let legends_list = [['предсказанно правильно', 'green'], ['предсказанно не правильно', 'red']];
             rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list, legends_list);
             rain_graph.draw_pie();
         };
-        update_rain_Graph(selector);
+        update_rain_Graph(selector.value);
         selector.addEventListener('change', (e) => {
-            update_rain_Graph(e.target);
+            update_rain_Graph(e.target.value);
+        });
+        slider.addEventListener('input', (e) => {
+            update_temp_Graph(document.getElementById('yandex_accuracy_temp_day_select').value);
+            update_hum_Graph(document.getElementById('yandex_accuracy_hum_day_select').value);
+            update_rain_Graph(document.getElementById('yandex_pie_accuracy_rain_select').value);
         });
     })
 </script>
