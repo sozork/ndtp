@@ -223,8 +223,9 @@
                     var preicted = list[i][1];
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
-                    datetext.style.left = this.canvas.width/list.length*i+10 + "px";
-                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
+                    datetext.style.left = this.canvas.width/list.length*i + 10 + "px";
+                    datetext.style.fontSize =  Math.min(this.bottom_container.offsetHeight, this.canvas.width/list.length/3) + 'px';
+                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length,
                     this.canvas.height*percentage+2, color_list, percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
