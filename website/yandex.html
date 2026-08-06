@@ -104,12 +104,16 @@
             this.y = y;
             this.width = width;
             this.height = height;
-            this.color = color;
+            this.color_list = color;
             this.percentage = percentage;
         }
         draw(ctx) {
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            let gradient = ctx.createLinearGradient(this.x, this.y, this.x+this.width, this.y+this.height);
+            this.color_list.forEach(item => gradient.addColorStop(item[0], item[1]));
+            ctx.fillStyle = gradient;
+            ctx.fillRect(this.x, this.y, this.width, this.height); 
+            // ctx.fillStyle = this.color;
+            // ctx.fillRect(this.x, this.y, this.width, this.height);
         }
         isMouseIn(x, y) {
             return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
@@ -123,11 +127,11 @@
         }
     };
     class Arc{
-        constructor(x, y, r, startangle, angle, color, percentage) {
+        constructor(x, y, r, startangle, angle, color_list, percentage) {
             this.x = x;
             this.y = y;
             this.radius = r;
-            this.color = color;
+            this.color_list = color_list;
             this.startangle = startangle
             this.angle = angle
             this.percentage = percentage
@@ -138,7 +142,10 @@
             ctx.arc(this.x, this.y, this.radius, this.startangle, this.startangle + this.angle);
             ctx.closePath();
 
-            ctx.fillStyle = this.color;
+            let gradient = ctx.createLinearGradient(this.x-this.radius, this.y-this.radius, this.x+this.radius, this.y+this.radius);
+            gradient.addColorStop(0, this.color_list[0]);
+            gradient.addColorStop(1, this.color_list[1]);
+            ctx.fillStyle = gradient;
             ctx.fill();
         }
         isMouseIn(x, y) {
@@ -204,7 +211,7 @@
                 this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
 
-            get_horizontal_lines_graph(list) {
+            get_horizontal_lines_graph(list, color_list) {
                 this.rectangles = [];
                 this.bottomlines = [];  
                 for (let i = 0; i < list.length; i++)
@@ -217,9 +224,8 @@
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
                     datetext.style.left = this.canvas.width/list.length*i+10 + "px";
-
                     this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
-                    this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
+                    this.canvas.height*percentage+2, color_list, percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
                     var x = event.offsetX*pixel_ratio;
@@ -289,13 +295,13 @@
                 bg_ctx.fillStyle = 'rgb(89, 99, 168)';
                 bg_ctx.strokeStyle = 'rgb(89, 149, 198)';  
                 bg_ctx.lineWidth = 7;
+                if  (x+bg_box_width > viewportWidth)
+                    x -= bg_box_width+20;
                 bg_ctx.roundRect(x, y-bg_box_height-20, bg_box_width+20, bg_box_height+20, 10);
                 bg_ctx.stroke();
                 bg_ctx.fill();
                 for (let j = 0; j < text_list.length; j++){
                     let metrics = bg_ctx.measureText(text_list[j]);
-                    if  (x+metrics.width > viewportWidth)
-                        x -= metrics.width+20;
                     bg_ctx.fillStyle = "aliceblue";
                     bg_ctx.fillText(text_list[j], x+10, y-bg_box_height+(bg_box_height/text_list.length)*j);
                 }
@@ -321,7 +327,8 @@
                     if (yandex_temp.length > 0)
                         yandex_list.push([openmet[0].values[i][0], yandex_temp[0].values[0][0], openmet[0].values[i][1]]);
                 };
-                temp_graph.get_horizontal_lines_graph(yandex_list);
+                let color_list = [[0, 'rgb(252, 165, 58)'], [1, 'rgb(217, 82, 28)']];
+                temp_graph.get_horizontal_lines_graph(yandex_list, color_list);
                 temp_graph.draw();
             }   
             else{
@@ -341,7 +348,7 @@
                     avgpercentage += percentage_list[i];
                 };
                 avgpercentage /= percentage_list.length;
-                list = [[100-0, 'green'], [avgpercentage*100-0, 'red']];
+                list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
                 let legends_list = [['погрешность', 'red']]
                 temp_graph.get_pie_graph(temp_graph.canvas.width/2-10, temp_graph.canvas.height/2-10, 200, list, legends_list);
                 temp_graph.draw_pie();
@@ -364,7 +371,8 @@
                     if (yandex_hum.length > 0)
                         yandex_list.push([openmet[0].values[i][0], yandex_hum[0].values[0][0], openmet[0].values[i][1]]);
                 }
-                hum_graph.get_horizontal_lines_graph(yandex_list);
+                let colot_list = [[0, 'rgb(147, 177, 239)'], [1, 'rgb(71, 103, 168)']];
+                hum_graph.get_horizontal_lines_graph(yandex_list, colot_list);
                 hum_graph.draw();}
             else{
                 openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
@@ -383,7 +391,7 @@
                     avgpercentage += percentage_list[i];
                 };
                 avgpercentage /= percentage_list.length;
-                list = [[100-0, 'green'], [avgpercentage*100-0, 'red']];
+                list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
                 let legends_list = [['погрешность', 'red']]
                 hum_graph.get_pie_graph(hum_graph.canvas.width/2-10, hum_graph.canvas.height/2-10, 200, list, legends_list);
                 hum_graph.draw_pie();
@@ -414,7 +422,7 @@
                 }
             }
             if (correct > 0){
-                list = [[correct, 'green'], [total-correct, 'red']];}
+                list = [[correct, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [total-correct, ['red', 'rgb(194, 34, 6)']]];}
             else
                 list = [[0, 'green'], [total-0, 'red']];
             let legends_list = [['предсказанно правильно', 'green'], ['предсказанно не правильно', 'red']];
