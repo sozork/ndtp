@@ -15,11 +15,11 @@
     <a class="change_page_btn" href="index.html">Стартовая страница</a>
     <a class="change_page_btn" href="google.html">Статистика гугл</a>
     <br>
-    <input type="range" id="days_show" min="2" max="60" value="10" step="1"> <h3 id="days_show_text">10</h3> <h3 class="main_description" style="display: inline-block; margin-left: 10px;">последних дней показывает</h3>
+    <input type="range" id="days_show" min="1" max="60" value="10" step="1"> <h3 id="days_show_text">10</h3> <h3 class="main_description" style="display: inline-block; margin-left: 10px;">последних дней показывает</h3>
     <hr class="top_line">
     <!-- температуры -->
     <div class="base_div" id = "yandex_accuracy_temp_day_div">
-        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <h3 class="h3_inline">Погрешность температуры предcказание на</h3>
         <select id = "yandex_accuracy_temp_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -31,15 +31,14 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
-            <option value=all>за все дни</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры">
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры, дата - на какой день предсказывали \nДата-международный стиль(Месяц-день)">
         <canvas id = "yandex_accuracy_temp_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
         <div class="bottom_container"></div>
     </div>
     <!-- влажности -->
     <div class="base_div" id = "yandex_accuracy_hum_day_div">
-        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <h3 class="h3_inline">Погрешность влажности предсказание на</h3>
         <select id = "yandex_accuracy_hum_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -51,9 +50,8 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
-            <option value=all>за все дни</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности">
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности, дата - на какой день предсказывали \nДата-международный стиль(Месяц-день)">
         <canvas id = "yandex_accuracy_hum_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
         <div class="bottom_container"></div>
     </div>
@@ -77,6 +75,46 @@
         <canvas id = "yandex_pie_accuracy_rain_canvas" class="yandex_accuracy_day_canvas"></canvas>
         <div class="bottom_container">
         </div>
+    </div>
+    <!-- пайчарт температуры -->
+     <div class="base_div" id = "yandex_accuracy_temp_pie_day_div">
+        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <select id = "yandex_accuracy_temp_pie_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+            <option value=all>за все дни</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании температуры">
+        <canvas id = "yandex_accuracy_temp_pie_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
+    </div>
+    <!-- пайчарт влажности -->
+    <div class="base_div" id = "yandex_accuracy_hum_pie_day_div">
+        <h3 class="h3_inline">Погрешность влажности предикт на</h3>
+        <select id = "yandex_accuracy_hum_pie_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+            <option value=all>за все дни</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании влажности">
+        <canvas id = "yandex_accuracy_hum_pie_day_canvas" class="yandex_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
 </body>
 
@@ -223,7 +261,7 @@
                     var preicted = list[i][1];
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
-                    datetext.style.left = this.canvas.width/list.length*i + 10 + "px";
+                    datetext.style.left = this.canvas.width/list.length*i + this.canvas.width/45 + "px";
                     datetext.style.fontSize =  Math.min(this.bottom_container.offsetHeight, this.canvas.width/list.length/3) + 'px';
                     this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length,
                     this.canvas.height*percentage+2, color_list, percentage));
@@ -332,28 +370,28 @@
                 temp_graph.get_horizontal_lines_graph(yandex_list, color_list);
                 temp_graph.draw();
             }   
-            else{
-                openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
-                let percentage_list = [];
-                for (let i = 0; i < openmet[0].values.length; i++){
-                    wastemp = openmet[0].values[i][2];
-                    yandex_prediction = db.exec('SELECT temperature FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
-                    if (yandex_prediction.length > 0){
-                        for (let j=0; j<yandex_prediction[0].values.length; j++){
-                            percentage_list.push(Math.abs(wastemp-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
-                        };
-                    };
-                };
-                let avgpercentage = 0;
-                for (let i = 0; i < percentage_list.length; i++){
-                    avgpercentage += percentage_list[i];
-                };
-                avgpercentage /= percentage_list.length;
-                list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
-                let legends_list = [['погрешность', 'red']]
-                temp_graph.get_pie_graph(temp_graph.canvas.width/2-10, temp_graph.canvas.height/2-10, 200, list, legends_list);
-                temp_graph.draw_pie();
-            }
+            // else{
+            //     openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            //     let percentage_list = [];
+            //     for (let i = 0; i < openmet[0].values.length; i++){
+            //         wastemp = openmet[0].values[i][2];
+            //         yandex_prediction = db.exec('SELECT temperature FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+            //         if (yandex_prediction.length > 0){
+            //             for (let j=0; j<yandex_prediction[0].values.length; j++){
+            //                 percentage_list.push(Math.abs(wastemp-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
+            //             };
+            //         };
+            //     };
+            //     let avgpercentage = 0;
+            //     for (let i = 0; i < percentage_list.length; i++){
+            //         avgpercentage += percentage_list[i];
+            //     };
+            //     avgpercentage /= percentage_list.length;
+            //     list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            //     let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            //     temp_graph.get_pie_graph(temp_graph.canvas.width/2-10, temp_graph.canvas.height/2-10, 200, list, legends_list);
+            //     temp_graph.draw_pie();
+            // }
         };
         update_temp_Graph(selector.value)
         selector.addEventListener('change', (e) => {
@@ -375,28 +413,28 @@
                 let colot_list = [[0, 'rgb(147, 177, 239)'], [1, 'rgb(71, 103, 168)']];
                 hum_graph.get_horizontal_lines_graph(yandex_list, colot_list);
                 hum_graph.draw();}
-            else{
-                openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
-                let percentage_list = [];
-                for (let i = 0; i < openmet[0].values.length; i++){
-                    washum = openmet[0].values[i][2];
-                    yandex_prediction = db.exec('SELECT humidity FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
-                    if (yandex_prediction.length > 0){
-                        for (let j=0; j<yandex_prediction[0].values.length; j++){
-                            percentage_list.push(Math.abs(washum-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
-                        };
-                    };
-                };
-                let avgpercentage = 0;
-                for (let i = 0; i < percentage_list.length; i++){
-                    avgpercentage += percentage_list[i];
-                };
-                avgpercentage /= percentage_list.length;
-                list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
-                let legends_list = [['погрешность', 'red']]
-                hum_graph.get_pie_graph(hum_graph.canvas.width/2-10, hum_graph.canvas.height/2-10, 200, list, legends_list);
-                hum_graph.draw_pie();
-            }
+            // else{
+            //     openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            //     let percentage_list = [];
+            //     for (let i = 0; i < openmet[0].values.length; i++){
+            //         washum = openmet[0].values[i][2];
+            //         yandex_prediction = db.exec('SELECT humidity FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+            //         if (yandex_prediction.length > 0){
+            //             for (let j=0; j<yandex_prediction[0].values.length; j++){
+            //                 percentage_list.push(Math.abs(washum-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
+            //             };
+            //         };
+            //     };
+            //     let avgpercentage = 0;
+            //     for (let i = 0; i < percentage_list.length; i++){
+            //         avgpercentage += percentage_list[i];
+            //     };
+            //     avgpercentage /= percentage_list.length;
+            //     list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            //     let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            //     hum_graph.get_pie_graph(hum_graph.canvas.width/2-10, hum_graph.canvas.height/2-10, 200, list, legends_list);
+            //     hum_graph.draw_pie();
+            // }
         };
         update_hum_Graph(selector.value)
         selector.addEventListener('change', (e) => {
@@ -426,7 +464,7 @@
                 list = [[correct, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [total-correct, ['red', 'rgb(194, 34, 6)']]];}
             else
                 list = [[0, 'green'], [total-0, 'red']];
-            let legends_list = [['предсказанно правильно', 'green'], ['предсказанно не правильно', 'red']];
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
             rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list, legends_list);
             rain_graph.draw_pie();
         };
@@ -434,10 +472,74 @@
         selector.addEventListener('change', (e) => {
             update_rain_Graph(e.target.value);
         });
+        // граф температуры ввиде пайчарта
+        temp_graph_pie = new Graph(document.getElementById('yandex_accuracy_temp_pie_day_canvas'), document.getElementById('yandex_accuracy_temp_pie_day_div').querySelector('.bottom_container'));
+        selector = document.getElementById('yandex_accuracy_temp_pie_day_select');
+        function update_temp_pie_Graph(days_diff) {
+            var yandex_list = [];
+            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            let percentage_list = [];
+            for (let i = 0; i < openmet[0].values.length; i++){
+                wastemp = openmet[0].values[i][2];
+                if (days_diff != 'all') yandex_prediction = db.exec('SELECT temperature FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-0});
+                else yandex_prediction = db.exec('SELECT temperature FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+                if (yandex_prediction.length > 0){
+                    for (let j=0; j<yandex_prediction[0].values.length; j++){
+                        percentage_list.push(Math.abs(wastemp-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
+                    };
+                };
+            };
+            let avgpercentage = 0;
+            for (let i = 0; i < percentage_list.length; i++){
+                avgpercentage += percentage_list[i];
+            };
+            avgpercentage /= percentage_list.length;
+            list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            temp_graph_pie.get_pie_graph(temp_graph_pie.canvas.width/2-10, temp_graph_pie.canvas.height/2-10, 200, list, legends_list);
+            temp_graph_pie.draw_pie();
+        };
+        update_temp_pie_Graph(selector.value);
+        selector.addEventListener('change', (e) => {
+            update_temp_pie_Graph(e.target.value);
+        });
+        // граф влажности ввиде пайчарта
+        hum_graph_pie = new Graph(document.getElementById('yandex_accuracy_hum_pie_day_canvas'), document.getElementById('yandex_accuracy_hum_pie_day_div').querySelector('.bottom_container'));
+        selector = document.getElementById('yandex_accuracy_hum_pie_day_select');
+        function update_hum_pie_Graph(days_diff) {
+            var yandex_list = [];
+            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            let percentage_list = [];
+            for (let i = 0; i < openmet[0].values.length; i++){
+                washum = openmet[0].values[i][3];
+                if (days_diff != 'all') yandex_prediction = db.exec('SELECT humidity FROM yandex WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-0});
+                else yandex_prediction = db.exec('SELECT humidity FROM yandex WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+                if (yandex_prediction.length > 0){
+                    for (let j=0; j<yandex_prediction[0].values.length; j++){
+                        percentage_list.push(Math.abs(washum-yandex_prediction[0].values[j][0])/yandex_prediction[0].values[j][0])
+                    };
+                };
+            };
+            let avgpercentage = 0;
+            for (let i = 0; i < percentage_list.length; i++){
+                avgpercentage += percentage_list[i];
+            };
+            avgpercentage /= percentage_list.length;
+            list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            hum_graph_pie.get_pie_graph(hum_graph_pie.canvas.width/2-10, hum_graph_pie.canvas.height/2-10, 200, list, legends_list);
+            hum_graph_pie.draw_pie();
+        };
+        update_hum_pie_Graph(selector.value);
+        selector.addEventListener('change', (e) => {
+            update_hum_pie_Graph(e.target.value);
+        });
         slider.addEventListener('input', (e) => {
             update_temp_Graph(document.getElementById('yandex_accuracy_temp_day_select').value);
             update_hum_Graph(document.getElementById('yandex_accuracy_hum_day_select').value);
             update_rain_Graph(document.getElementById('yandex_pie_accuracy_rain_select').value);
+            update_temp_pie_Graph(document.getElementById('yandex_accuracy_temp_pie_day_select').value);
+            update_hum_pie_Graph(document.getElementById('yandex_accuracy_hum_pie_day_select').value);
         });
     })
 </script>
