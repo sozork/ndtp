@@ -11,13 +11,19 @@
 <body>
     <canvas id="bg_canvas"></canvas>
     <h1 class="main_caption">Статистика точности гугл погоды</h1>
-    <h3 class="main_description">Данные взяты с api гугла</h3>
+    <h3 class="main_description">Данные взяты с <a target="_blank" class = "google_link" href="https://developers.google.com/maps/documentation/weather">google wheather api</a></h3>
     <a class="change_page_btn" href="index.html">Стартовая страница</a>
-    <a class="change_page_btn" href="yandex.html">Статистика yandex</a>
+    <a class="change_page_btn" href="yandex.html">Статистика яндекс</a>
+    <br>
+    <input type="range" id="days_show" min="1" max="60" value="10" step="1"> <h3 id="days_show_text">10</h3> <h3 class="main_description" style="display: inline-block; margin-left: 10px;">последних дней показывает</h3>
     <hr class="top_line">
+    <!-- див для вводного текста -->
+    <div class="base_div" id = "start_div">
+        <h3 class="h3_inline">Про сайт</h3>
+    </div>
     <!-- температуры -->
     <div class="base_div" id = "google_accuracy_temp_day_div">
-        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <h3 class="h3_inline">Погрешность температуры предcказание на</h3>
         <select id = "google_accuracy_temp_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -30,12 +36,13 @@
             <option value=9>9</option>
             <option value=10>10</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры">
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании температуры, дата - на какой день предсказывали \nДата-международный стиль(Месяц-день)">
         <canvas id = "google_accuracy_temp_day_canvas" class="google_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
     <!-- влажности -->
     <div class="base_div" id = "google_accuracy_hum_day_div">
-        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <h3 class="h3_inline">Погрешность влажности предсказание на</h3>
         <select id = "google_accuracy_hum_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -48,13 +55,14 @@
             <option value=9>9</option>
             <option value=10>10</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности">
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает погрешность в предсказании влажности, дата - на какой день предсказывали \nДата-международный стиль(Месяц-день)">
         <canvas id = "google_accuracy_hum_day_canvas" class="google_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
     <!-- пайчарт дождя -->
-    <div class="base_div" id = "google_pie_accuracy_rain_div" style="width: 550px;">
+    <div class="base_div" id = "google_pie_accuracy_rain_div">
         <h3 class="h3_inline">Точность предсказаний дождя предикт на</h3>
-        <select id = "google_pie_accuracy_rain_select">
+        <select id = "google_pie_accuracy_rain_select" style="text-align: center;">
             <option value=1>1</option>
             <option value=2>2</option>
             <option value=3>3</option>
@@ -65,15 +73,52 @@
             <option value=8>8</option>
             <option value=9>9</option>
             <option value=10>10</option>
+            <option value=all>за все дни</option>
         </select>
         <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
-        <canvas id = "google_pie_accuracy_rain_canvas" class="google_accuracy_day_canvas" style="width: 530px;"></canvas>
-        <h3 class = "pie_legend_text">
-            <span style="display: inline-block; width: 12px; height: 12px; background-color: green; margin-right: 5px;"></span>
-        Предсказано правильно</h3>
-        <h3 class = "pie_legend_text">
-            <span style="display: inline-block; width: 12px; height: 12px; background-color: red; margin-right: 5px;"></span>
-        Предсказано не правильно</h3>
+        <canvas id = "google_pie_accuracy_rain_canvas" class="google_accuracy_day_canvas"></canvas>
+        <div class="bottom_container">
+        </div>
+    </div>
+    <!-- пайчарт температуры -->
+     <div class="base_div" id = "google_accuracy_temp_pie_day_div">
+        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <select id = "google_accuracy_temp_pie_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+            <option value=all>за все дни</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании температуры">
+        <canvas id = "google_accuracy_temp_pie_day_canvas" class="google_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
+    </div>
+    <!-- пайчарт влажности -->
+    <div class="base_div" id = "google_accuracy_hum_pie_day_div">
+        <h3 class="h3_inline">Погрешность влажности предикт на</h3>
+        <select id = "google_accuracy_hum_pie_day_select">
+            <option value=1>1</option>
+            <option value=2>2</option>
+            <option value=3>3</option>
+            <option value=4>4</option>
+            <option value=5>5</option>
+            <option value=6>6</option>
+            <option value=7>7</option>
+            <option value=8>8</option>
+            <option value=9>9</option>
+            <option value=10>10</option>
+            <option value=all>за все дни</option>
+        </select>
+        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании влажности">
+        <canvas id = "google_accuracy_hum_pie_day_canvas" class="google_accuracy_day_canvas"></canvas>
+        <div class="bottom_container"></div>
     </div>
 </body>
 
@@ -101,12 +146,16 @@
             this.y = y;
             this.width = width;
             this.height = height;
-            this.color = color;
+            this.color_list = color;
             this.percentage = percentage;
         }
         draw(ctx) {
-            ctx.fillStyle = this.color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            let gradient = ctx.createLinearGradient(this.x, this.y, this.x+this.width, this.y+this.height);
+            this.color_list.forEach(item => gradient.addColorStop(item[0], item[1]));
+            ctx.fillStyle = gradient;
+            ctx.fillRect(this.x, this.y, this.width, this.height); 
+            // ctx.fillStyle = this.color;
+            // ctx.fillRect(this.x, this.y, this.width, this.height);
         }
         isMouseIn(x, y) {
             return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
@@ -120,11 +169,11 @@
         }
     };
     class Arc{
-        constructor(x, y, r, startangle, angle, color, percentage) {
+        constructor(x, y, r, startangle, angle, color_list, percentage) {
             this.x = x;
             this.y = y;
             this.radius = r;
-            this.color = color;
+            this.color_list = color_list;
             this.startangle = startangle
             this.angle = angle
             this.percentage = percentage
@@ -135,7 +184,10 @@
             ctx.arc(this.x, this.y, this.radius, this.startangle, this.startangle + this.angle);
             ctx.closePath();
 
-            ctx.fillStyle = this.color;
+            let gradient = ctx.createLinearGradient(this.x-this.radius, this.y-this.radius, this.x+this.radius, this.y+this.radius);
+            gradient.addColorStop(0, this.color_list[0]);
+            gradient.addColorStop(1, this.color_list[1]);
+            ctx.fillStyle = gradient;
             ctx.fill();
         }
         isMouseIn(x, y) {
@@ -165,7 +217,12 @@
     bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
     bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
     var bg_ctx = bg_canvas.getContext("2d");
-
+    // обновляем цифру слайдера
+    const slider = document.getElementById('days_show');
+    const slider_text = document.getElementById('days_show_text');
+    slider.addEventListener('input', (e) => {
+        slider_text.textContent = slider.value;
+    });
     window.addEventListener('load', async () => {
         const SQL = await initSqlJs({
             locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
@@ -176,46 +233,42 @@
         const db = new SQL.Database(uint8Array);
 
         class Graph {
-            constructor(canvas, bottomlines_container) {
+            constructor(canvas, bottom_container) {
                 this.canvas = canvas;
                 const pixel_ratio = window.devicePixelRatio || 1;
                 this.canvas.width = this.canvas.clientWidth * pixel_ratio;
                 this.canvas.height = this.canvas.clientHeight * pixel_ratio;
                 this.ctx = canvas.getContext("2d");
-                this.bottomlines_container = bottomlines_container;
+                this.bottom_container = bottom_container;
                 this.rectangles = [];
                 this.bottomlines = [];
                 this.arcs = [];
             }
 
-            draw(date_line_id) {
-                var deletion_elements = document.querySelectorAll(`[id="${date_line_id}"]`);
-                for (let i = 0; i < deletion_elements.length; i++){
-                    deletion_elements[i].remove();  
-                };
+            draw() {
+                this.bottom_container.innerHTML = "";
                 this.ctx.reset();
                 drawGrid(this.canvas, this.ctx, this.canvas.height/5, 'black', 3);
                 this.rectangles.forEach(rect => rect.draw(this.ctx));
-                this.bottomlines.forEach(line => this.bottomlines_container.appendChild(line));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
 
-            get_horizontal_lines_graph(date_line_id, list) {
+            get_horizontal_lines_graph(list, color_list) {
                 this.rectangles = [];
                 this.bottomlines = [];  
                 for (let i = 0; i < list.length; i++)
                 {
                     var datetext = document.createElement("h3");
                     datetext.textContent = list[i][0].substring(5);
-                    datetext.id = date_line_id;
                     datetext.className = "google_accuracy_day_date_text";
                     this.bottomlines.push(datetext);
                     var preicted = list[i][1];
                     var actual = list[i][2];
                     var percentage = Math.abs((preicted-actual)/preicted);
-                    datetext.style.left = this.canvas.width/list.length*i+10 + "px";
-
-                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length-20,
-                    this.canvas.height*percentage+2, "rgb(147, 177, 239)", percentage));
+                    datetext.style.left = this.canvas.width/list.length*i + this.canvas.width/45 + "px";
+                    datetext.style.fontSize =  Math.min(this.bottom_container.offsetHeight, this.canvas.width/list.length/3) + 'px';
+                    this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length,
+                    this.canvas.height*percentage+2, color_list, percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
                     var x = event.offsetX*pixel_ratio;
@@ -226,7 +279,21 @@
                     this.rectangles.forEach(rect => rect.onHoverDraw(this.ctx, x, y));
                 });
             }
-            get_pie_graph(x, y, radius, list){
+            get_pie_graph(x, y, radius, list, legends_list){
+                this.bottomlines = [];
+                for (let i = 0; i<legends_list.length; i++){
+                    var square = document.createElement("span");
+                    square.style.display = "inline-block";
+                    square.style.width = '12px';
+                    square.style.height = '12px';
+                    square.style.marginRight = '5px';
+                    square.style.backgroundColor = legends_list[i][1];
+                    var legend = document.createElement("h3");
+                    legend.className = 'pie_legend_text';
+                    legend.textContent = legends_list[i][0];
+                    legend.insertAdjacentHTML('afterbegin', square.outerHTML);
+                    this.bottomlines.push(legend);
+                }
                 this.arcs = [];
                 var sum = 0;
                 for (let i=0; i<list.length; i++){
@@ -248,8 +315,10 @@
                 });
             }
             draw_pie() {
+                this.bottom_container.innerHTML = "";
                 this.ctx.reset();
                 this.arcs.forEach(arc => arc.draw(this.ctx));
+                this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
         };
         //  отрисовываем весь текст, который должен выводиться при наводки на значки вопроса
@@ -257,21 +326,31 @@
         for (let i = 0; i < elements.length; i++){
             let element = elements[i];
             let text = element.dataset.text;
+            let text_list = text.split('\\n');
             element.addEventListener('mousemove', (event) => {
                 bg_ctx.reset();
                 let x = event.x*pixel_ratio;
                 let y = event.y*pixel_ratio;
-                bg_ctx.fillStyle = 'rgb(89, 99, 168)';
+                let viewportWidth = window.innerWidth;
                 bg_ctx.font = "17px 'Roboto', sans-serif";
-                let metrics = bg_ctx.measureText(text);
-                // let height = metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent;
-                let height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-                bg_ctx.fillRect(x-10, y-height-5, metrics.width+20, height+20);
-                bg_ctx.lineWidth = 5;                 
-                bg_ctx.strokeStyle = 'rgb(89, 149, 198)';    
-                bg_ctx.strokeRect(x-10, y-height-5, metrics.width+20, height+20);
-                bg_ctx.fillStyle = "aliceblue";
-                bg_ctx.fillText(text, x, y);
+                let bg_box_width = Math.max(...text_list.map(item => bg_ctx.measureText(item).width))
+                let bg_box_height = text_list.length*20;
+                bg_ctx.fillStyle = 'rgb(89, 99, 168)';
+                bg_ctx.strokeStyle = 'rgb(89, 149, 198)';  
+                bg_ctx.lineWidth = 7;
+                if  (x+bg_box_width > viewportWidth)
+                    x -= bg_box_width+20;
+                bg_ctx.roundRect(x, y-bg_box_height-20, bg_box_width+20, bg_box_height+20, 10);
+                bg_ctx.stroke();
+                bg_ctx.fill();
+                for (let j = 0; j < text_list.length; j++){
+                    let metrics = bg_ctx.measureText(text_list[j]);
+                    bg_ctx.fillStyle = "aliceblue";
+                    bg_ctx.fillText(text_list[j], x+10, y-bg_box_height+(bg_box_height/text_list.length)*j);
+                }
+                
+                
+                
                 
             });
             element.addEventListener('mouseleave', (event) => {
@@ -279,69 +358,192 @@
             });
         };
         // граф температуры
-        temp_graph = new Graph(document.getElementById('google_accuracy_temp_day_canvas'), document.getElementById('google_accuracy_temp_day_div'));
+        temp_graph = new Graph(document.getElementById('google_accuracy_temp_day_canvas'), document.getElementById('google_accuracy_temp_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('google_accuracy_temp_day_select');
-        function update_temp_Graph(selector) {
+        function update_temp_Graph(days_diff) {
             var google_list = [];
-            openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
-            for (let i = 0; i < openmet[0].values.length; i++)
-            {
-                var google_temp = db.exec('SELECT temperature FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
-                if (google_temp.length > 0)
-                    google_list.push([openmet[0].values[i][0], google_temp[0].values[0][0], openmet[0].values[i][1]]);
-            }
-            temp_graph.get_horizontal_lines_graph('date_temp_text', google_list);
-            temp_graph.draw('date_temp_text');
+            if (days_diff != 'all'){
+                openmet = db.exec('SELECT "date", temperature FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+                for (let i = 0; i < openmet[0].values.length; i++)
+                {
+                    var google_temp = db.exec('SELECT temperature FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-1});
+                    if (google_temp.length > 0)
+                        google_list.push([openmet[0].values[i][0], google_temp[0].values[0][0], openmet[0].values[i][1]]);
+                };
+                let color_list = [[0, 'rgb(252, 165, 58)'], [1, 'rgb(217, 82, 28)']];
+                temp_graph.get_horizontal_lines_graph(google_list, color_list);
+                temp_graph.draw();
+            }   
+            // else{
+            //     openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            //     let percentage_list = [];
+            //     for (let i = 0; i < openmet[0].values.length; i++){
+            //         wastemp = openmet[0].values[i][2];
+            //         google_prediction = db.exec('SELECT temperature FROM google WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+            //         if (google_prediction.length > 0){
+            //             for (let j=0; j<google_prediction[0].values.length; j++){
+            //                 percentage_list.push(Math.abs(wastemp-google_prediction[0].values[j][0])/google_prediction[0].values[j][0])
+            //             };
+            //         };
+            //     };
+            //     let avgpercentage = 0;
+            //     for (let i = 0; i < percentage_list.length; i++){
+            //         avgpercentage += percentage_list[i];
+            //     };
+            //     avgpercentage /= percentage_list.length;
+            //     list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            //     let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            //     temp_graph.get_pie_graph(temp_graph.canvas.width/2-10, temp_graph.canvas.height/2-10, 200, list, legends_list);
+            //     temp_graph.draw_pie();
+            // }
         };
-        update_temp_Graph(selector)
+        update_temp_Graph(selector.value)
         selector.addEventListener('change', (e) => {
-            update_temp_Graph(e.target);
+            update_temp_Graph(e.target.value);
         });
         //  граф влажности
-        hum_graph = new Graph(document.getElementById('google_accuracy_hum_day_canvas'), document.getElementById('google_accuracy_hum_day_div'));
+        hum_graph = new Graph(document.getElementById('google_accuracy_hum_day_canvas'), document.getElementById('google_accuracy_hum_day_div').querySelector('.bottom_container'));
         selector = document.getElementById('google_accuracy_hum_day_select');
-        function update_hum_Graph(selector) {
-            var google_list = [];
-            openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
-            for (let i = 0; i < openmet[0].values.length; i++)
-            {
-                var google_hum = db.exec('SELECT humidity FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
-                if (google_hum.length > 0)
-                    google_list.push([openmet[0].values[i][0], google_hum[0].values[0][0], openmet[0].values[i][1]]);
-            }
-            hum_graph.get_horizontal_lines_graph('date_hum_text', google_list);
-            hum_graph.draw('date_hum_text');
+        function update_hum_Graph(days_diff) {
+            if (days_diff != 'all'){
+                var google_list = [];
+                openmet = db.exec('SELECT "date", humidity FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :shown_days', {':today': formatted_today, ':shown_days':slider.value-0});
+                for (let i = 0; i < openmet[0].values.length; i++)
+                {
+                    var google_hum = db.exec('SELECT humidity FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-1});
+                    if (google_hum.length > 0)
+                        google_list.push([openmet[0].values[i][0], google_hum[0].values[0][0], openmet[0].values[i][1]]);
+                }
+                let colot_list = [[0, 'rgb(147, 177, 239)'], [1, 'rgb(71, 103, 168)']];
+                hum_graph.get_horizontal_lines_graph(google_list, colot_list);
+                hum_graph.draw();}
+            // else{
+            //     openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            //     let percentage_list = [];
+            //     for (let i = 0; i < openmet[0].values.length; i++){
+            //         washum = openmet[0].values[i][2];
+            //         google_prediction = db.exec('SELECT humidity FROM google WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+            //         if (google_prediction.length > 0){
+            //             for (let j=0; j<google_prediction[0].values.length; j++){
+            //                 percentage_list.push(Math.abs(washum-google_prediction[0].values[j][0])/google_prediction[0].values[j][0])
+            //             };
+            //         };
+            //     };
+            //     let avgpercentage = 0;
+            //     for (let i = 0; i < percentage_list.length; i++){
+            //         avgpercentage += percentage_list[i];
+            //     };
+            //     avgpercentage /= percentage_list.length;
+            //     list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            //     let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            //     hum_graph.get_pie_graph(hum_graph.canvas.width/2-10, hum_graph.canvas.height/2-10, 200, list, legends_list);
+            //     hum_graph.draw_pie();
+            // }
         };
-        update_hum_Graph(selector)
+        update_hum_Graph(selector.value)
         selector.addEventListener('change', (e) => {
-            update_hum_Graph(e.target);
+            update_hum_Graph(e.target.value);
         });
         // грав дождя
-        rain_graph = new Graph(document.getElementById('google_pie_accuracy_rain_canvas'), document.getElementById('google_pie_accuracy_rain_div'));
+        rain_graph = new Graph(document.getElementById('google_pie_accuracy_rain_canvas'), document.getElementById('google_pie_accuracy_rain_div').querySelector('.bottom_container'));
         selector = document.getElementById('google_pie_accuracy_rain_select');
-        function update_rain_Graph(selector) {
-            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= 10', {':today': formatted_today});
+        function update_rain_Graph(days_diff) {
+            if (days_diff != 'all') openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :shown_days', {':today': formatted_today, ':shown_days':slider.value-0});
             let total = 0;
             let correct = 0;
             for (let i = 0; i < openmet[0].values.length; i++){
                 wasrain = openmet[0].values[i][1];
-                google_prediction = db.exec('SELECT rain FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': selector.value-1});
+                if (days_diff != 'all')
+                    google_prediction = db.exec('SELECT rain FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-1});
+                else
+                    google_prediction = db.exec('SELECT rain FROM google WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
                 if (google_prediction.length > 0){
-                    total += 1;
-                    if (wasrain == google_prediction[0].values[0][0]) correct += 1;
+                    for (let j=0; j<google_prediction[0].values.length; j++){
+                        total += 1;
+                        if (wasrain == google_prediction[0].values[j][0]) correct += 1;
+                    }
                 }
             }
-            if (correct > 0)
-                list = [[total/correct, 'green'], [total-total/correct, 'red']];
+            if (correct > 0){
+                list = [[correct, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [total-correct, ['red', 'rgb(194, 34, 6)']]];}
             else
-
                 list = [[0, 'green'], [total-0, 'red']];
-            rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list);
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list, legends_list);
             rain_graph.draw_pie();
         };
-        update_rain_Graph(selector);
+        update_rain_Graph(selector.value);
         selector.addEventListener('change', (e) => {
-            update_rain_Graph(e.target);
+            update_rain_Graph(e.target.value);
+        });
+        // граф температуры ввиде пайчарта
+        temp_graph_pie = new Graph(document.getElementById('google_accuracy_temp_pie_day_canvas'), document.getElementById('google_accuracy_temp_pie_day_div').querySelector('.bottom_container'));
+        selector = document.getElementById('google_accuracy_temp_pie_day_select');
+        function update_temp_pie_Graph(days_diff) {
+            var google_list = [];
+            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            let percentage_list = [];
+            for (let i = 0; i < openmet[0].values.length; i++){
+                wastemp = openmet[0].values[i][2];
+                if (days_diff != 'all') google_prediction = db.exec('SELECT temperature FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-1});
+                else google_prediction = db.exec('SELECT temperature FROM google WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+                if (google_prediction.length > 0){
+                    for (let j=0; j<google_prediction[0].values.length; j++){
+                        percentage_list.push(Math.abs(wastemp-google_prediction[0].values[j][0])/google_prediction[0].values[j][0])
+                    };
+                };
+            };
+            let avgpercentage = 0;
+            for (let i = 0; i < percentage_list.length; i++){
+                avgpercentage += percentage_list[i];
+            };
+            avgpercentage /= percentage_list.length;
+            list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            temp_graph_pie.get_pie_graph(temp_graph_pie.canvas.width/2-10, temp_graph_pie.canvas.height/2-10, 200, list, legends_list);
+            temp_graph_pie.draw_pie();
+        };
+        update_temp_pie_Graph(selector.value);
+        selector.addEventListener('change', (e) => {
+            update_temp_pie_Graph(e.target.value);
+        });
+        // граф влажности ввиде пайчарта
+        hum_graph_pie = new Graph(document.getElementById('google_accuracy_hum_pie_day_canvas'), document.getElementById('google_accuracy_hum_pie_day_div').querySelector('.bottom_container'));
+        selector = document.getElementById('google_accuracy_hum_pie_day_select');
+        function update_hum_pie_Graph(days_diff) {
+            var google_list = [];
+            openmet = db.exec('SELECT * FROM openmeteo WHERE JULIANDAY(:today)-JULIANDAY("date") <= :show_days', {':today': formatted_today, ':show_days': slider.value-0});
+            let percentage_list = [];
+            for (let i = 0; i < openmet[0].values.length; i++){
+                washum = openmet[0].values[i][3];
+                if (days_diff != 'all') google_prediction = db.exec('SELECT humidity FROM google WHERE "date" = :date AND JULIANDAY("date")-JULIANDAY("current_date") == :days', {':date' : openmet[0].values[i][0], ':days': days_diff-1});
+                else google_prediction = db.exec('SELECT humidity FROM google WHERE "date" = :date', {':date' : openmet[0].values[i][0]});
+                if (google_prediction.length > 0){
+                    for (let j=0; j<google_prediction[0].values.length; j++){
+                        percentage_list.push(Math.abs(washum-google_prediction[0].values[j][0])/google_prediction[0].values[j][0])
+                    };
+                };
+            };
+            let avgpercentage = 0;
+            for (let i = 0; i < percentage_list.length; i++){
+                avgpercentage += percentage_list[i];
+            };
+            avgpercentage /= percentage_list.length;
+            list = [[100-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [avgpercentage*100-0, ['red', 'rgb(194, 34, 6)']]];
+            let legends_list = [['предсказанно правильно', 'green'], ['погрешность', 'red']];
+            hum_graph_pie.get_pie_graph(hum_graph_pie.canvas.width/2-10, hum_graph_pie.canvas.height/2-10, 200, list, legends_list);
+            hum_graph_pie.draw_pie();
+        };
+        update_hum_pie_Graph(selector.value);
+        selector.addEventListener('change', (e) => {
+            update_hum_pie_Graph(e.target.value);
+        });
+        slider.addEventListener('input', (e) => {
+            update_temp_Graph(document.getElementById('google_accuracy_temp_day_select').value);
+            update_hum_Graph(document.getElementById('google_accuracy_hum_day_select').value);
+            update_rain_Graph(document.getElementById('google_pie_accuracy_rain_select').value);
+            update_temp_pie_Graph(document.getElementById('google_accuracy_temp_pie_day_select').value);
+            update_hum_pie_Graph(document.getElementById('google_accuracy_hum_pie_day_select').value);
         });
     })
 </script>
