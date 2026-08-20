@@ -20,10 +20,16 @@
     <!-- див для вводного текста -->
     <div class="base_div" id = "start_div">
         <h3 class="h3_inline">Про сайт</h3>
+        <br>
+        <h3 class="h3_inline">Страница показывает сравнение погрешностей в предсказании погоды по сайтам yandex и api google. Почему не использовать api yandex? Потому что пользовательское соглашение яндекса не позволяет сохранять данные, а тут это важно. Так что из-за способа получения информации могут быть сильные погрешности. Данные потом сравниваются с историей опенметио https://open-meteo.com/en/docs</h3>
+        <br>
+        <h3 class="h3_inline">Слайдер сверху "последних дней показывает", контролирует предсказания на сколько последних дат показывать, т.е не дату когда предсказание было записано, а дату, на которую оно было сделано</h3>
+        <br>
+        <h3 class="h3_inline">Данные взяты по г. Минск</h3>
     </div>
     <!-- пайчарт дождя -->
     <div class="base_div" id = "pie_accuracy_rain_div">
-        <h3 class="h3_inline">Точность предсказаний дождя предикт на</h3>
+        <h3 class="h3_inline">Сравнение точности предсказаний дождя на</h3>
         <select id = "pie_accuracy_rain_select" style="text-align: center;">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -37,14 +43,14 @@
             <option value=10>10</option>
             <option value=all>за все дни</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает точность предсказаний дождя">
+        <h3 class="h3_inline">дней вперёд.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает сравнение точности предсказаний дождя, сравнивает, по тех. причинам, не по кол-ву осадков, а по был ли дождь или нет">
         <canvas id = "pie_accuracy_rain_canvas" class="accuracy_day_canvas"></canvas>
         <div class="bottom_container">
         </div>
     </div>
     <!-- пайчарт температуры -->
      <div class="base_div" id = "accuracy_temp_pie_day_div">
-        <h3 class="h3_inline">Погрешность температуры предикт на</h3>
+        <h3 class="h3_inline">Сравнение погрешности температуры на</h3>
         <select id = "accuracy_temp_pie_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -58,13 +64,13 @@
             <option value=10>10</option>
             <option value=all>за все дни</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании температуры">
+        <h3 class="h3_inline">дней вперёд.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Сравнивает СРЕДНЮЮ погрешность в предсказании температуры, температура общая за день и ночь">
         <canvas id = "accuracy_temp_pie_day_canvas" class="accuracy_day_canvas"></canvas>
         <div class="bottom_container"></div>
     </div>
     <!-- пайчарт влажности -->
     <div class="base_div" id = "accuracy_hum_pie_day_div">
-        <h3 class="h3_inline">Погрешность влажности предикт на</h3>
+        <h3 class="h3_inline">Сравнивает погрешность предсказания влажности на</h3>
         <select id = "accuracy_hum_pie_day_select">
             <option value=1>1</option>
             <option value=2>2</option>
@@ -78,7 +84,7 @@
             <option value=10>10</option>
             <option value=all>за все дни</option>
         </select>
-        <h3 class="h3_inline">дней.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Показывает СРЕДНЮЮ погрешность в предсказании влажности">
+        <h3 class="h3_inline">дней вперёд.</h3> <img id="question" src="question.png" width="20" height="20" data-text="Сравнивает СРЕДНЮЮ погрешность в предсказании влажности">
         <canvas id = "accuracy_hum_pie_day_canvas" class="accuracy_day_canvas"></canvas>
         <div class="bottom_container"></div>
     </div>
@@ -103,21 +109,17 @@
         ctx.stroke();
     }
     class Rectangle {
-        constructor(x, y, width, height, color, percentage) {
+        constructor(x, y, width, height, fillstyle, percentage) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
-            this.color_list = color;
+            this.fillstyle = fillstyle;
             this.percentage = percentage;
         }
         draw(ctx) {
-            let gradient = ctx.createLinearGradient(this.x, this.y, this.x+this.width, this.y+this.height);
-            this.color_list.forEach(item => gradient.addColorStop(item[0], item[1]));
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = this.fillstyle;
             ctx.fillRect(this.x, this.y, this.width, this.height); 
-            // ctx.fillStyle = this.color;
-            // ctx.fillRect(this.x, this.y, this.width, this.height);
         }
         isMouseIn(x, y) {
             return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
@@ -131,11 +133,11 @@
         }
     };
     class Arc{
-        constructor(x, y, r, startangle, angle, color_list, percentage) {
+        constructor(x, y, r, startangle, angle, fillstyle, percentage) {
             this.x = x;
             this.y = y;
             this.radius = r;
-            this.color_list = color_list;
+            this.fillstyle = fillstyle;
             this.startangle = startangle
             this.angle = angle
             this.percentage = percentage
@@ -146,10 +148,7 @@
             ctx.arc(this.x, this.y, this.radius, this.startangle, this.startangle + this.angle);
             ctx.closePath();
 
-            let gradient = ctx.createLinearGradient(this.x-this.radius, this.y-this.radius, this.x+this.radius, this.y+this.radius);
-            gradient.addColorStop(0, this.color_list[0]);
-            gradient.addColorStop(1, this.color_list[1]);
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = this.fillstyle;
             ctx.fill();
         }
         isMouseIn(x, y) {
@@ -179,6 +178,17 @@
     bg_canvas.width = bg_canvas.clientWidth * pixel_ratio;
     bg_canvas.height = bg_canvas.clientHeight * pixel_ratio;
     var bg_ctx = bg_canvas.getContext("2d");
+    // филстайлы гугла и яндекса
+    const yandex_legend_color = 'red';
+    const google_legend_color = 'green';
+    let yandex_fillstyle = 'red';
+    // let yandex_fillstyle = bg_ctx.createLinearGradient(0,0,0,0);
+    // yandex_fillstyle.addColorStop(0, 'red');
+    // yandex_fillstyle.addColorStop(1, 'rgb(194, 34, 6)');
+    let google_fillstyle = 'green' 
+    // let google_fillstyle = bg_ctx.createLinearGradient(0,0,0,0);
+    // google_fillstyle.addColorStop(0, 'rgb(28, 232, 52)');
+    // google_fillstyle.addColorStop(1, 'rgb(9, 102, 20)');
     // обновляем цифру слайдера
     const slider = document.getElementById('days_show');
     const slider_text = document.getElementById('days_show_text');
@@ -215,7 +225,7 @@
                 this.bottomlines.forEach(line => this.bottom_container.appendChild(line));
             }
 
-            get_horizontal_lines_graph(list, color_list) {
+            get_horizontal_lines_graph(list, fillstyle) {
                 this.rectangles = [];
                 this.bottomlines = [];  
                 for (let i = 0; i < list.length; i++)
@@ -230,7 +240,7 @@
                     datetext.style.left = this.canvas.width/list.length*i + this.canvas.width/45 + "px";
                     datetext.style.fontSize =  Math.min(this.bottom_container.offsetHeight, this.canvas.width/list.length/3) + 'px';
                     this.rectangles.push(new Rectangle(this.canvas.width/list.length*i+10, this.canvas.height-this.canvas.height*percentage-2, this.canvas.width/list.length,
-                    this.canvas.height*percentage+2, color_list, percentage));
+                    this.canvas.height*percentage+2, fillstyle, percentage));
                 }
                 this.canvas.addEventListener('mousemove', (event) => {
                     var x = event.offsetX*pixel_ratio;
@@ -346,8 +356,8 @@
                     }
                 }
             }
-            list = [[correct_google, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [correct_yandex, ['red', 'rgb(194, 34, 6)']]];
-            let legends_list = [['google', 'green'], ['yandex', 'red']];
+            list = [[correct_google, google_fillstyle], [correct_yandex, yandex_fillstyle]];
+            let legends_list = [['google', google_legend_color], ['yandex', yandex_legend_color]];
             rain_graph.get_pie_graph(rain_graph.canvas.width/2-10, rain_graph.canvas.height/2-10, 200, list, legends_list);
             rain_graph.draw_pie();
         };
@@ -384,8 +394,8 @@
             };
             let google_sum = google_diff_list.reduce((a, cur) => a + cur, 0);
             let yandex_sum = yandex_diff_list.reduce((a, cur) => a + cur, 0);
-            list = [[google_sum-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [yandex_sum-0, ['red', 'rgb(194, 34, 6)']]];
-            let legends_list = [['google', 'green'], ['yandex', 'red']];
+            list = [[google_sum-0, google_fillstyle], [yandex_sum-0, yandex_fillstyle]];
+            let legends_list = [['google', google_legend_color], ['yandex', yandex_legend_color]];
             temp_graph_pie.get_pie_graph(temp_graph_pie.canvas.width/2-10, temp_graph_pie.canvas.height/2-10, 200, list, legends_list);
             temp_graph_pie.draw_pie();
         };
@@ -422,8 +432,8 @@
             };
             let google_sum = google_diff_list.reduce((a, cur) => a + cur, 0);
             let yandex_sum = yandex_diff_list.reduce((a, cur) => a + cur, 0);
-            list = [[google_sum-0, ['rgb(28, 232, 52)' , 'rgb(9, 102, 20)']], [yandex_sum-0, ['red', 'rgb(194, 34, 6)']]];
-            let legends_list = [['google', 'green'], ['yandex', 'red']];
+            list = [[google_sum-0, google_fillstyle], [yandex_sum-0, yandex_fillstyle]];
+            let legends_list = [['google', google_legend_color], ['yandex', yandex_legend_color]];
             hum_graph_pie.get_pie_graph(hum_graph_pie.canvas.width/2-10, hum_graph_pie.canvas.height/2-10, 200, list, legends_list);
             hum_graph_pie.draw_pie();
         };

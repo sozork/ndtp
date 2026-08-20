@@ -57,6 +57,9 @@ select{
 .h3_inline{
     margin-left: 10px;
     margin-right: 10px;
+    padding-top: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     display: inline-block;
     color: aliceblue;
     font-family: "Roboto", sans-serif;
