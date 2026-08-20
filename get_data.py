@@ -20,6 +20,7 @@ def get_data_yandex(cursor):
     link = 'https://yandex.by/pogoda/ru/minsk/details/today?lat=53.902735&lon=27.555691'
     source = requests.get(link).text
     soup = BeautifulSoup(source, 'lxml')
+    # разбор сайта на нужные данные
     weather_container = soup.select_one('ul[aria-labelledby="_S_1_-short-forecast-title"]')
     days = weather_container.select('li[class*="AppForecastDay_dayCard_"]')
     for day in days:
@@ -39,7 +40,7 @@ def get_data_yandex(cursor):
         for i in humidity:
             avg_humidity += int(i.text[:-1])
         avg_humidity= round(avg_humidity/4, 1)
-        
+        # супер костыльное получение дождя, если часть слова 'дожд' был утром, днём, вечером или ночью
         rain = day_data.select('div[class="AppForecastDayPart_caption__k1Uip AppForecastDayPart_center__esSb6 AppForecastDayPart_text__dFFbf AppForecastDayPart_showWide__hsoFN"][style$="-text"]')
         israin = False
         for i in rain:
@@ -49,7 +50,8 @@ def get_data_yandex(cursor):
         cursor.execute("INSERT INTO yandex VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), israin, avg_temp, avg_humidity])
 
 def get_data_google(cursor):
-    consider_rain_quant = 0.01
+    consider_rain_quant = 0.01 # сколько минимум мм осадов = был дождь
+    # для подробных данных смотрите документацию google wheather api
     url = "https://weather.googleapis.com/v1/forecast/days:lookup?"
     params = {
         "location.latitude": 53.9,
@@ -63,27 +65,30 @@ def get_data_google(cursor):
     response.raise_for_status()
     
     days = response.json()["forecastDays"]
+    # собираем данные по гуглу за каждый полученный день
     for day in days:
         date = day['displayDate']
         date = datetime.date(date['year'], date['month'], date['day'])
 
         time = 'daytimeForecast'
         precipitation_daytime = day[time]['precipitation']
-        rain_daytime = precipitation_daytime['qpf']['quantity'] - precipitation_daytime['snowQpf']['quantity'] >= consider_rain_quant
+        rain_daytime = precipitation_daytime['qpf']['quantity'] - precipitation_daytime['snowQpf']['quantity'] >= consider_rain_quant # если колво осадков - кол-во снега больше consider_rain_quant, тогда дождь был, иначе нет
         humidity_daytime = day[time]['relativeHumidity']
     
         time = 'nighttimeForecast'
         precipitation_nighttime = day[time]['precipitation']
-        rain_nighttime = precipitation_nighttime['qpf']['quantity'] - precipitation_nighttime['snowQpf']['quantity'] >= consider_rain_quant
+        rain_nighttime = precipitation_nighttime['qpf']['quantity'] - precipitation_nighttime['snowQpf']['quantity'] >= consider_rain_quant # если колво осадков - кол-во снега больше consider_rain_quant, тогда дождь был, иначе нет
         humidity_nighttimetime = day[time]['relativeHumidity']
 
+        # среднее между днём и ночью
         avg_temp = round((day['maxTemperature']['degrees']+day['minTemperature']['degrees'])/2, 2)
         rain = rain_daytime or rain_nighttime
         humidity = round((humidity_daytime+humidity_nighttimetime)/2, 2)
         cursor.execute("INSERT INTO google VALUES(?, ?, ?, ?, ?)", [now.isoformat(), date.isoformat(), rain, avg_temp, humidity])
 
 def get_data_openmeteo(cursor):
-    considerd_rain_min = 0.01
+    considerd_rain_min = 0.01 # сколько минимум мм осадов = был дождь
+    # для подробностей смотреть документацию openmeteo
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": 53.9,
