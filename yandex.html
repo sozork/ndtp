@@ -233,7 +233,7 @@
         const SQL = await initSqlJs({
             locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.14.1/dist/${file}`
         });
-        const response = await fetch('../data.db');
+        const response = await fetch('data.db');
         const db_data = await response.arrayBuffer();
         const uint8Array = new Uint8Array(db_data);
         const db = new SQL.Database(uint8Array);
