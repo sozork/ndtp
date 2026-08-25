@@ -88,7 +88,7 @@ def get_data_google(cursor):
 
 def get_data_openmeteo(cursor):
     considerd_rain_min = 0.01 # сколько минимум мм осадов = был дождь
-    # для подробностей смотреть документацию openmeteo
+    # для подробностей смотреть документацию openmeteo https://open-meteo.com/
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": 53.9,
