@@ -1,3 +1,4 @@
+# это частично иишная хрень, сайт не обновлялся, должно исправиться
 name: run get_data.py
 
 on:
@@ -8,19 +9,22 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-
       - name: checkout repo content
-        uses: actions/checkout@v2 # checkout the repository content to github runner
+        uses: actions/checkout@v3  # Update to v3 or v4
+        with:
+          fetch-depth: 0
 
       - name: setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9' # install the python version needed
+          python-version: '3.9'
           
       - name: install python packages
         run: |
@@ -31,15 +35,28 @@ jobs:
           pip install mysql
           pip install mysql.connector
           
-      - name: execute py script # run main.py
+      - name: execute py script
         env:
           SOME_SECRET: ${{ secrets.SOME_SECRET }}
         run: python get_data.py
+        
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          # Only commit if changes exist to avoid workflow failures
-          git diff-index --quiet HEAD || git commit -m "Получение новой информации о погоде сегодня черезGitHub Actions"
+          git diff-index --quiet HEAD || git commit -m "Получение новой информации о погоде сегодня через GitHub Actions"
           git push
+          
+      # Add these deployment steps
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'  # Change to your website directory if different
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
